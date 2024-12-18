@@ -5,6 +5,7 @@
 #define APPLE_PAIR 2
 #define SNAKE_PAIR 3
 
+void setup(void);
 void drawBorders(int maxX, int maxY);
 void drawTopBorder(int maxX);
 void drawBottomBorder(int maxX, int maxY);
@@ -13,28 +14,22 @@ void drawRightBorder(int maxX, int maxY);
 
 int main (void) 
 {
-    int maxX, maxY;
+    setup();
 
-    initscr(); // start curses mode
-    raw(); // disable buffering for input, keyboard interrupt passed as characters without generating a signal
-    noecho(); // turn off printing the characters selected by the user
-    curs_set(0); // hide cursor
-    start_color(); // enable color capabilitie
-    init_pair(BORDER_PAIR, COLOR_WHITE, COLOR_WHITE); // border color
-    init_pair(APPLE_PAIR, COLOR_RED, COLOR_RED); // apple color
-    init_pair(SNAKE_PAIR, COLOR_GREEN, COLOR_GREEN); // snake color
+    int maxX, maxY;
+    getmaxyx(stdscr, maxY, maxX);
+    maxY -= 1; // rows start at idx 0
+    maxX -= 1; // columns start at idx 0
 
     /*
      * The squares being displayed take 1 row and 2 columns. ("  ")
      * As a consequence, the number of colums has to be pair.
      */
-    getmaxyx(stdscr, maxY, maxX);
-    maxY -= 1;
-    maxX -= 1;
     if ((maxX - 1) % 2 != 0) 
     {
         maxX -= 1;
     }
+
     drawBorders(maxX, maxY);
 
     while(1) 
@@ -50,6 +45,18 @@ int main (void)
     }
 
     endwin(); // free resources and disable curses mode
+}
+
+void setup(void) 
+{
+    initscr(); // start curses mode
+    raw(); // disable buffering for input, keyboard interrupt passed as characters without generating a signal
+    noecho(); // turn off printing the characters selected by the user
+    curs_set(0); // hide cursor
+    start_color(); // enable color capabilitie
+    init_pair(BORDER_PAIR, COLOR_WHITE, COLOR_WHITE); // border color
+    init_pair(APPLE_PAIR, COLOR_RED, COLOR_RED); // apple color
+    init_pair(SNAKE_PAIR, COLOR_GREEN, COLOR_GREEN); // snake color
 }
 
 void drawBorders(int maxX, int maxY)
