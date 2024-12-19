@@ -16,8 +16,8 @@ typedef struct Shape
     struct Shape* nxt;
 } Shape;
 
-Unit* newUnit(int x, int y, char* str);
+Unit* newUnit(int x, int y, const char* str);
 int freeUnit(Unit *unt);
-Shape* newShape();
+Shape* newShape(Unit *unt);
+Shape* addUnitToShape(Shape *shp, Unit* unt);
 int freeShape(Shape* shp);
-int addUnitToShape(Shape *shp, Unit* unt);

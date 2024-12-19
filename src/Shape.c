@@ -1,13 +1,16 @@
 #include "../include/Shape.h"
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-Unit* newUnit(int x, int y, char* str) 
+Unit* newUnit(int x, int y, const char* str) 
 {
     Unit *unt = (Unit*) malloc(sizeof(Unit));
     unt->x = x;
     unt->y = y;
     unt->len = strlen(str);
     unt->str = (char*) malloc(sizeof(char) * unt->len);
+    strcpy(unt->str, str);
 
     return unt;
 }
@@ -15,46 +18,48 @@ Unit* newUnit(int x, int y, char* str)
 int freeUnit(Unit* unt) 
 {
     free(unt->str);
-    unt->len = 0;
-    unt->str = NULL;
+    free(unt);
 
-    return 0;
+    return 1;
 }
 
-Shape* newShape() 
+Shape* newShape(Unit *unt) 
 {
     Shape* shp = (Shape*) malloc(sizeof(Shape));
     shp->idx = 0;
-    shp->unt = NULL;
+    shp->unt = unt;
     shp->nxt = NULL;
+
+    return shp;
+}
+
+Shape* addUnitToShape(Shape *shp, Unit* unt) 
+{
+    int idx = shp->idx;
+    Shape* lst = shp;
+
+    lst->nxt = newShape(unt);
+    lst->nxt->idx = idx + 1;
+
+    return lst->nxt;
 }
 
 int freeShape(Shape* shp) 
 {
-    int lastIdx = 0;
+    int numShapes = 0;
 
     while(shp != NULL) 
     {
-        Unit *tmp = shp->nxt;
-        freeUnit(shp->unt);
-        free(shp);
-        shp = tmp;
-        lastIdx += 1;
+        Shape* tmp = shp->nxt;
+        
+        if (freeUnit(shp->unt))
+        {
+            free(shp);
+            shp = tmp;
+            numShapes += 1;
+        } 
     }
+    shp = NULL;
 
-    return lastIdx;
-}
-
-int addUnitToShape(Shape *shp, Unit* unt) 
-{
-    Shape* last = shp;
-
-    while (last->nxt != NULL) 
-    {
-        last = last->nxt;
-    }
-
-    Shape *nxt = newShape();
-    nxt->idx = shp->idx + 1;
-    nxt->unt = unt;
+    return numShapes;
 }
