@@ -13,6 +13,7 @@ typedef struct Shape
 {
     int idx;
     Unit* unt;
+    struct Shape* prv;
     struct Shape* nxt;
 } Shape;
 

@@ -34,7 +34,7 @@ int main(void)
         return CU_get_error();
     }
 
-    if (CU_add_test(pSuite, "Create Unit", testNewUnit) == NULL) 
+    if (CU_add_test(pSuite, "New Unit", testNewUnit) == NULL) 
     {
         CU_cleanup_registry();
         return CU_get_error();
@@ -119,21 +119,26 @@ void testAddUnitToShape(void)
 
     CU_ASSERT_EQUAL(shp->idx, 0);
     CU_ASSERT_PTR_NOT_NULL(shp->nxt);
+    CU_ASSERT_PTR_NULL(shp->prv);
     CU_ASSERT_STRING_EQUAL(shp->unt->str, STR);
 
     CU_ASSERT_EQUAL(shp->nxt->idx, 1);
+    CU_ASSERT_PTR_NOT_NULL(shp->nxt->prv);
     CU_ASSERT_PTR_NOT_NULL(shp->nxt->nxt);
     CU_ASSERT_STRING_EQUAL(shp->nxt->unt->str, STR);
 
     CU_ASSERT_EQUAL(shp->nxt->nxt->idx, 2);
+    CU_ASSERT_PTR_NOT_NULL(shp->nxt->nxt->prv);
     CU_ASSERT_PTR_NOT_NULL(shp->nxt->nxt->nxt);
     CU_ASSERT_STRING_EQUAL(shp->nxt->nxt->unt->str, STR);
 
     CU_ASSERT_EQUAL(shp->nxt->nxt->nxt->idx, 3);
+    CU_ASSERT_PTR_NOT_NULL(shp->nxt->nxt->nxt->prv);
     CU_ASSERT_PTR_NOT_NULL(shp->nxt->nxt->nxt->nxt);
     CU_ASSERT_STRING_EQUAL(shp->nxt->nxt->nxt->unt->str, STR);
 
     CU_ASSERT_EQUAL(shp->nxt->nxt->nxt->nxt->idx, 4);
+    CU_ASSERT_PTR_NOT_NULL(shp->nxt->nxt->nxt->nxt->prv);
     CU_ASSERT_PTR_NULL(shp->nxt->nxt->nxt->nxt->nxt);
     CU_ASSERT_STRING_EQUAL(shp->nxt->nxt->nxt->nxt->unt->str, STR);
 

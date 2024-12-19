@@ -1,7 +1,6 @@
 #include "../include/Shape.h"
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 Unit* newUnit(int x, int y, const char* str) 
 {
@@ -28,6 +27,7 @@ Shape* newShape(Unit *unt)
     Shape* shp = (Shape*) malloc(sizeof(Shape));
     shp->idx = 0;
     shp->unt = unt;
+    shp->prv = NULL;
     shp->nxt = NULL;
 
     return shp;
@@ -39,6 +39,7 @@ Shape* addUnitToShape(Shape *shp, Unit* unt)
     Shape* lst = shp;
 
     lst->nxt = newShape(unt);
+    lst->nxt->prv = lst;
     lst->nxt->idx = idx + 1;
 
     return lst->nxt;
