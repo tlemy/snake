@@ -1,6 +1,5 @@
 #include "../include/Snake.h"
 #include <stdlib.h>
-#include <stdio.h> // remove
 
 Snake *newSnake(int initX, int initY, int initLen)
 {
@@ -46,4 +45,17 @@ int moveSnake(Snake *snk, int diffX, int diffY)
     snk->head->unt->y += diffY;
 
     return i;
+}
+
+int freeSnake(Snake *snk) 
+{
+    int i = 0;
+
+    if (freeShape(snk->head) == snk->len) 
+    {
+        free(snk);
+        return 1;
+    }
+
+    return 0;
 }
