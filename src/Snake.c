@@ -1,5 +1,6 @@
 #include "../include/Snake.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 Snake *newSnake(int initX, int initY, int initLen)
 {
@@ -57,5 +58,21 @@ int freeSnake(Snake *snk)
         return 1;
     }
 
+    return 0;
+}
+
+int isCollidingWithSelf(Snake *snk) 
+{
+    Shape *head = snk->head;
+    Shape *body = head->nxt;
+
+    for (int i = 1; i < snk->len; i++) 
+    {
+        if (head->unt->x == body->unt->x && head->unt->y == body->unt->y) 
+        {
+            return 1;
+        }
+        body = body->nxt;
+    }
     return 0;
 }

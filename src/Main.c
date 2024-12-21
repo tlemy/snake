@@ -22,7 +22,7 @@
 void setup(void);
 void initPositions(int *left, int *right, int *up, int *down);
 void initLimits(int *minX, int *minY, int *maxX, int *maxY);
-int checkBorderCollision(Snake *snk, int minX, int minY, int maxX, int maxY);
+int isBorderCollision(Snake *snk, int minX, int minY, int maxX, int maxY);
 void movementControls(int c, int *left, int *right, int *up, int *down);
 int getYInc(int up, int down);
 int getXInc(int left, int right);
@@ -85,7 +85,8 @@ int main (void)
         }
 
         // collision
-        if (!gameOver && checkBorderCollision(snk, minX, minY, maxX, maxY)) 
+        if (!gameOver && (isBorderCollision(snk, minX, minY, maxX, maxY) 
+                || isCollidingWithSelf(snk))) 
         {
             gameOver = true;
         }
@@ -97,12 +98,12 @@ int main (void)
             drawBorders(maxX, maxY, WHITE_WHITE);
             drawShape(snk->head, snk->len, GREEN_GREEN);
             refresh();
-            napms(1000 / 20);
         }
         else 
         {
             drawBorders(maxX, maxY, RED_RED);
         }
+        napms(1000 / 20);
     } 
 }
 
@@ -147,7 +148,7 @@ void initLimits(int *minX, int *minY, int *maxX, int *maxY)
     }
 }
 
-int checkBorderCollision(Snake *snk, int minX, int minY, int maxX, int maxY) 
+int isBorderCollision(Snake *snk, int minX, int minY, int maxX, int maxY) 
 {
     int leftBorderCollision = snk->head->unt->x < minX;
     int topBorderCollision = snk->head->unt->y < minY;

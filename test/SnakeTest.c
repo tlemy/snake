@@ -13,6 +13,8 @@ void testNewSnake(void);
 void testGrowSnake(void);
 void testMoveSnake(void);
 void testFreeSnake(void);
+void testIsCollidingWithSelfFalse(void);
+void testIsCollidingWithSelfTrue(void);
 
 int main(void) 
 {
@@ -44,6 +46,18 @@ int main(void)
     }
 
     if (CU_add_test(pSuite, "Move Snake", testMoveSnake) == NULL) 
+    {
+        CU_cleanup_registry();
+        return CU_get_error();
+    }
+
+    if (CU_add_test(pSuite, "Is not colliding with self", testIsCollidingWithSelfFalse) == NULL) 
+    {
+        CU_cleanup_registry();
+        return CU_get_error();
+    }
+
+    if (CU_add_test(pSuite, "Is colliding with self", testIsCollidingWithSelfTrue) == NULL) 
     {
         CU_cleanup_registry();
         return CU_get_error();
@@ -104,6 +118,19 @@ void testMoveSnake(void)
     CU_ASSERT_EQUAL(snk->head->unt->y, y + diffY);
     CU_ASSERT_EQUAL(snk->tail->unt->x, snk->tail->prv->unt->x - diffX);
     CU_ASSERT_EQUAL(snk->tail->unt->y, snk->tail->prv->unt->y);
+}
+
+void testIsCollidingWithSelfFalse(void) 
+{
+    snk->tail->unt->x = snk->head->unt->x;
+    CU_ASSERT_FALSE(isCollidingWithSelf(snk));
+}
+
+void testIsCollidingWithSelfTrue(void) 
+{
+    snk->tail->unt->x = snk->head->unt->x;
+    snk->tail->unt->y = snk->head->unt->y;
+    CU_ASSERT_TRUE(isCollidingWithSelf(snk));
 }
 
 void testFreeSnake(void) 
