@@ -4,76 +4,106 @@
 #include "../include/Snake.h"
 
 #define CONTROL_C_KEY 3
+#define LINE_FEED_KEY 10
+#define CARRIAGE_RETURN_KEY 13
 #define W_KEY 'w'
 #define A_KEY 'a'
 #define S_KEY 's'
 #define D_KEY 'd'
 #define SPACE ' '
-#define BORDER_PAIR 1
-#define APPLE_PAIR 2
-#define SNAKE_PAIR 3
-#define SCORE_PAIR 4
+#define WHITE_WHITE 1
+#define RED_RED 2
+#define GREEN_GREEN 3
+#define BLACK_WHITE 4
 #define X_INC_SNAKE 2
 #define Y_INC_SNAKE 1
 #define SLEEP_TIME 50 // millisecs
  
 void setup(void);
-int manageControls(int c, int *left, int *right, int *up, int *down);
+void initPositions(int *left, int *right, int *up, int *down);
+void initLimits(int *minX, int *minY, int *maxX, int *maxY);
+int checkBorderCollision(Snake *snk, int minX, int minY, int maxX, int maxY);
+void movementControls(int c, int *left, int *right, int *up, int *down);
 int getYInc(int up, int down);
 int getXInc(int left, int right);
 void drawShape(Shape *shp, int len, int pair);
-void drawBorders(int maxX, int maxY);
+void drawBorders(int maxX, int maxY, int pair);
 
 int main (void) 
 {
     setup();
 
-    int left = 0;
-    int right = 1;
-    int up = 0;
-    int down = 0;
-    int maxX, maxY;
-    getmaxyx(stdscr, maxY, maxX);
-    maxY -= 1; // rows start at idx 0
-    maxX -= 1; // columns start at idx 0
+    int gameOver = false;
 
-    Snake* snk = newSnake(1, 1, maxX / 10);
+    int left;
+    int right;
+    int up;
+    int down;
+    initPositions(&left, &right, &up, &down);
 
-    /*
-     * The squares being displayed take 1 row and 2 columns. ("  ")
-     * As a consequence, the number of colums has to be pair.
-     */
-    if ((maxX - 1) % 2 != 0) 
-    {
-        maxX -= 1;
-    }
+    int minX;
+    int minY;
+    int maxX;
+    int maxY;
+    initLimits(&minX, &minY, &maxX, &maxY);
+
+    Snake* snk = newSnake(minX, minY, maxX / 10);
 
     while(1) 
     {
+        // controls
         int c = getch();
-        int xInc = getXInc(left, right);
-        int yInc = getYInc(up, down);
 
-        if (manageControls(c, &left, &right, &up, &down) == -1) 
-        {
+        if (CONTROL_C_KEY == c) 
+        {   
+            freeSnake(snk);
+            endwin(); // free resources and disable curses mode
             break;
         }
 
-        moveSnake(snk, xInc, yInc);
+        if (!gameOver) 
+        {
+            movementControls(c, &left, &right, &up, &down); 
+        }
+        else 
+        {
+            if (CARRIAGE_RETURN_KEY == c || LINE_FEED_KEY == c) 
+            {
+                gameOver = false;
+                initPositions(&left, &right, &up, &down);
+                initLimits(&minX, &minY, &maxX, &maxY);
+                snk = newSnake(minX, minY, maxX / 10);
+            }
+        }
 
-        erase();
-        drawBorders(maxX, maxY);
-        drawShape(snk->head, snk->len, SNAKE_PAIR);
-        refresh();
+        // movement
+        if (!gameOver) 
+        {
+            int xInc = getXInc(left, right);
+            int yInc = getYInc(up, down);
+            moveSnake(snk, xInc, yInc);
+        }
 
-        napms(1000 / 20);
-    }
+        // collision
+        if (!gameOver && checkBorderCollision(snk, minX, minY, maxX, maxY)) 
+        {
+            gameOver = true;
+        }
 
-    if (!freeSnake(snk)) 
-    {
-        return -1;
-    }
-    endwin(); // free resources and disable curses mode
+        // display
+        if (!gameOver) 
+        {
+            erase();
+            drawBorders(maxX, maxY, WHITE_WHITE);
+            drawShape(snk->head, snk->len, GREEN_GREEN);
+            refresh();
+            napms(1000 / 20);
+        }
+        else 
+        {
+            drawBorders(maxX, maxY, RED_RED);
+        }
+    } 
 }
 
 void setup(void) 
@@ -84,19 +114,52 @@ void setup(void)
     curs_set(0); // hide cursor
     start_color(); // enable color capabilitie
     nodelay(stdscr, TRUE); // avoid getch blocking
-    init_pair(BORDER_PAIR, COLOR_WHITE, COLOR_WHITE); // border color
-    init_pair(APPLE_PAIR, COLOR_RED, COLOR_RED); // apple color
-    init_pair(SNAKE_PAIR, COLOR_GREEN, COLOR_GREEN); // snake color
-    init_pair(SCORE_PAIR, COLOR_BLACK, COLOR_WHITE); // score color
+    init_pair(WHITE_WHITE, COLOR_WHITE, COLOR_WHITE); // border color
+    init_pair(RED_RED, COLOR_RED, COLOR_RED); // apple color
+    init_pair(GREEN_GREEN, COLOR_GREEN, COLOR_GREEN); // snake color
+    init_pair(BLACK_WHITE, COLOR_BLACK, COLOR_WHITE); // score color
 }
 
-int manageControls(int c, int *left, int *right, int *up, int *down) 
+void initPositions(int *left, int *right, int *up, int *down) 
 {
-    if (c == CONTROL_C_KEY) 
+    *left = 0;
+    *right = 1;
+    *up = 0;
+    *down = 0;
+}
+
+void initLimits(int *minX, int *minY, int *maxX, int *maxY) 
+{
+    *minX = 1;
+    *minY = 1;
+
+    getmaxyx(stdscr, *maxY, *maxX);
+    *maxY -= 1; // rows start at idx 0
+    *maxX -= 1; // columns start at idx 0
+
+    /*
+    * The squares being displayed take 1 row and 2 columns. ("  ")
+    * As a consequence, the number of colums has to be pair.
+    */
+    if ((*maxX - 1) % 2 != 0) 
     {
-        return -1;
+        *maxX -= 1;
     }
-    else if (c == W_KEY && !(*down)) 
+}
+
+int checkBorderCollision(Snake *snk, int minX, int minY, int maxX, int maxY) 
+{
+    int leftBorderCollision = snk->head->unt->x < minX;
+    int topBorderCollision = snk->head->unt->y < minY;
+    int rightBorderCollision = snk->head->unt->x > maxX - 2; // each unit is 2 characters long
+    int bottomBorderCollision = snk->head->unt->y > maxY - 1; // each unit is one character high
+
+    return leftBorderCollision || rightBorderCollision || topBorderCollision || bottomBorderCollision;
+}
+
+void movementControls(int c, int *left, int *right, int *up, int *down) 
+{
+    if (c == W_KEY && !(*down)) 
     {
         *up = 1;
         *down = 0;
@@ -124,7 +187,6 @@ int manageControls(int c, int *left, int *right, int *up, int *down)
         *up = 0;
         *down = 0;
     }
-    return 0;
 }
 
 int getYInc(int up, int down) 
@@ -168,9 +230,9 @@ void drawShape(Shape *shp, int len, int pair)
     attroff(COLOR_PAIR(pair));
 }
 
-void drawBorders(int maxX, int maxY)
+void drawBorders(int maxX, int maxY, int pair)
 {
-    attron(COLOR_PAIR(BORDER_PAIR));
+    attron(COLOR_PAIR(pair));
 
     // top
     for (int x = 0; x <= maxX ; x++) 
@@ -196,5 +258,5 @@ void drawBorders(int maxX, int maxY)
         mvaddch(y, maxX, SPACE);
     }
 
-    attroff(COLOR_PAIR(BORDER_PAIR));
+    attroff(COLOR_PAIR(pair));
 }
