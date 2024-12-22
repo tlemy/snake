@@ -25,7 +25,7 @@ int main(void)
         return CU_get_error();
     }
 
-    pSuite = CU_add_suite("ShapeTestSuite", setup, cleanup);
+    pSuite = CU_add_suite("SnakeTestSuite", setup, cleanup);
 
     if (pSuite == NULL) 
     {

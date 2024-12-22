@@ -1,3 +1,5 @@
+#ifndef SNAKE
+#define SNAKE
 #include "Shape.h"
 
 typedef struct Snake 
@@ -12,3 +14,5 @@ Snake *growSnake(Snake* snk);
 int moveSnake(Snake *snk, int diffX, int diffY);
 int freeSnake(Snake *snk);
 int isCollidingWithSelf(Snake *snk);
+
+#endif

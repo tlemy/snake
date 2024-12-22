@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include "../include/Snake.h"
+#include "../include/Apple.h"
 
 #define CONTROL_C_KEY 3
 #define LINE_FEED_KEY 10
@@ -27,7 +28,7 @@ void movementControls(int c, int *left, int *right, int *up, int *down);
 int getYInc(int up, int down);
 int getXInc(int left, int right);
 void drawShape(Shape *shp, int len, int pair);
-void drawBorders(int maxX, int maxY, int pair);
+void drawBorders(int maxX, int maxY, int pair, int scr);
 
 int main (void) 
 {
@@ -47,7 +48,11 @@ int main (void)
     int maxY;
     initLimits(&minX, &minY, &maxX, &maxY);
 
+    int score = 0;
     Snake* snk = newSnake(minX, minY, maxX / 10);
+    Apple* apl = newApple(minX, minY, maxX - 2, maxY -1);
+
+    spawnApple(apl);
 
     while(1) 
     {
@@ -57,11 +62,12 @@ int main (void)
         if (CONTROL_C_KEY == c) 
         {   
             freeSnake(snk);
+            freeApple(apl);
             endwin(); // free resources and disable curses mode
             break;
         }
 
-        if (!gameOver) 
+        if (!gameOver)
         {
             movementControls(c, &left, &right, &up, &down); 
         }
@@ -73,6 +79,7 @@ int main (void)
                 initPositions(&left, &right, &up, &down);
                 initLimits(&minX, &minY, &maxX, &maxY);
                 snk = newSnake(minX, minY, maxX / 10);
+                score = 0;
             }
         }
 
@@ -91,17 +98,25 @@ int main (void)
             gameOver = true;
         }
 
+        if (isAppleCollision(snk, apl)) 
+        {
+            growSnake(snk);
+            spawnApple(apl);
+            ++score;
+        }
+
         // display
         if (!gameOver) 
         {
             erase();
-            drawBorders(maxX, maxY, WHITE_WHITE);
+            drawBorders(maxX, maxY, WHITE_WHITE, score);
             drawShape(snk->head, snk->len, GREEN_GREEN);
+            drawShape(apl->shp, 1, RED_RED);
             refresh();
         }
         else 
         {
-            drawBorders(maxX, maxY, RED_RED);
+            drawBorders(maxX, maxY, RED_RED, score);
         }
         napms(1000 / 20);
     } 
@@ -156,6 +171,14 @@ int isBorderCollision(Snake *snk, int minX, int minY, int maxX, int maxY)
     int bottomBorderCollision = snk->head->unt->y > maxY - 1; // each unit is one character high
 
     return leftBorderCollision || rightBorderCollision || topBorderCollision || bottomBorderCollision;
+}
+
+int isAppleCollision(Snake* snk, Apple* apl) 
+{
+    int isXEqual = snk->head->unt->x == apl->shp->unt->x;
+    int isYEqual = snk->head->unt->y == apl->shp->unt->y;
+
+    return isXEqual && isYEqual;
 }
 
 void movementControls(int c, int *left, int *right, int *up, int *down) 
@@ -231,12 +254,18 @@ void drawShape(Shape *shp, int len, int pair)
     attroff(COLOR_PAIR(pair));
 }
 
-void drawBorders(int maxX, int maxY, int pair)
+void drawBorders(int maxX, int maxY, int pair, int scr)
 {
+    char str[32];
+    sprintf(str, " [ SCORE: %d ] ", scr);
+    attron(COLOR_PAIR(BLACK_WHITE));
+    mvprintw(0, 1, str);
+    attroff(COLOR_PAIR(BLACK_WHITE));
+
     attron(COLOR_PAIR(pair));
 
     // top
-    for (int x = 0; x <= maxX ; x++) 
+    for (int x = strlen(str) + 1; x <= maxX ; x++) 
     {
         mvaddch(0, x, SPACE);
     }

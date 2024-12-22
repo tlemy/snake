@@ -1,3 +1,5 @@
+#ifndef SHAPE
+#define SHAPE
 #define SQUARE "  "
 
 typedef struct Unit
@@ -22,3 +24,5 @@ int freeUnit(Unit *unt);
 Shape* newShape(Unit *unt);
 Shape* addUnitToShape(Shape *shp, Unit* unt);
 int freeShape(Shape* shp);
+
+#endif
