@@ -1,8 +1,8 @@
 #include <ncurses.h>
 #include <unistd.h>
-#include <stdio.h>
 #include "../include/Snake.h"
 #include "../include/Apple.h"
+#include <string.h>
 
 #define CONTROL_C_KEY 3
 #define LINE_FEED_KEY 10
@@ -24,6 +24,7 @@ void setup(void);
 void initPositions(int *left, int *right, int *up, int *down);
 void initLimits(int *minX, int *minY, int *maxX, int *maxY);
 int isBorderCollision(Snake *snk, int minX, int minY, int maxX, int maxY);
+int isAppleCollision(Snake* snk, Apple* apl);
 void movementControls(int c, int *left, int *right, int *up, int *down);
 int getYInc(int up, int down);
 int getXInc(int left, int right);
@@ -259,7 +260,7 @@ void drawBorders(int maxX, int maxY, int pair, int scr)
     char str[32];
     sprintf(str, " [ SCORE: %d ] ", scr);
     attron(COLOR_PAIR(BLACK_WHITE));
-    mvprintw(0, 1, str);
+    mvaddstr(0, 1, str);
     attroff(COLOR_PAIR(BLACK_WHITE));
 
     attron(COLOR_PAIR(pair));
