@@ -7,6 +7,7 @@ typedef struct Player
     int right;
     int up;
     int down;
+    int score;
     Snake* snk;
 } Player;
 
@@ -22,7 +23,7 @@ int getYInc(Player* pl);
 
 int getXInc(Player* pl);
 
-void initPositions(Player* pl);
+void initPlayer(Player* pl);
 
 void initLimits(Limit* lim);
 

@@ -3,7 +3,7 @@
 #include "../include/Init.h"
 #include "../include/Collision.h"
 #include "../include/Draw.h"
-#include "../include/Position.h"
+#include "../include/Control.h"
 
 #define CONTROL_C_KEY 3
 #define LINE_FEED_KEY 10
@@ -15,12 +15,11 @@ int main (void)
     setup();
 
     int gameOver = false;
-    int score = 0;
     Player p1;
     Limit lim;
 
     initLimits(&lim);
-    initPositions(&p1);
+    initPlayer(&p1);
 
     p1.snk = newSnake(lim.minX, lim.minY, lim.maxX / 10);
     Apple* apl = newApple(lim.minX, lim.minY, lim.maxX - 2, lim.maxY -1);
@@ -49,10 +48,10 @@ int main (void)
             if (CARRIAGE_RETURN_KEY == c || LINE_FEED_KEY == c)
             {
                 gameOver = false;
-                initPositions(&p1);
+                initPlayer(&p1);
                 initLimits(&lim);
                 p1.snk = newSnake(lim.minX, lim.minY, lim.maxX / 10);
-                score = 0;
+                p1.score = 0;
             }
         }
 
@@ -72,22 +71,24 @@ int main (void)
         if (isAppleCollision(p1.snk, apl))
         {
             growSnake(p1.snk);
-            spawnApple(apl);
-            ++score;
+
+            while(spawnApple(apl));
+
+            ++p1.score;
         }
 
         // display
         if (!gameOver)
         {
             erase();
-            drawBorders(lim.maxX, lim.maxY, getBorderColorPair(), score);
+            drawBorders(lim.maxX, lim.maxY, getBorderColorPair(), p1.score);
             drawShape(p1.snk->head, p1.snk->len, getPlayerSnakeColorPair());
             drawShape(apl->shp, 1, getAppleColorPair());
             refresh();
         }
         else
         {
-            drawBorders(lim.maxX, lim.maxY, getAppleColorPair(), score);
+            drawBorders(lim.maxX, lim.maxY, getAppleColorPair(), p1.score);
         }
         napms(1000 / 20);
     }

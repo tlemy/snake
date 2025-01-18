@@ -8,38 +8,45 @@ int setup(void);
 int cleanup(void);
 void testNewApple(void);
 void testSpawnApple(void);
+void testSpawnAppleSamePosition(void);
 void testFreeApple(void);
 
-int main(void) 
+int main(void)
 {
     CU_pSuite pSuite = NULL;
 
-    if (CU_initialize_registry() != CUE_SUCCESS) 
+    if (CU_initialize_registry() != CUE_SUCCESS)
     {
         return CU_get_error();
     }
 
     pSuite = CU_add_suite("AppleTestSuite", setup, cleanup);
 
-    if (pSuite == NULL) 
+    if (pSuite == NULL)
     {
         CU_cleanup_registry();
         return CU_get_error();
     }
 
-    if (CU_add_test(pSuite, "New Apple", testNewApple) == NULL) 
-    {
-        CU_cleanup_registry();
-        return CU_get_error();
-    }
-    
-    if (CU_add_test(pSuite, "Spawn Apple", testSpawnApple) == NULL) 
+    if (CU_add_test(pSuite, "New Apple", testNewApple) == NULL)
     {
         CU_cleanup_registry();
         return CU_get_error();
     }
 
-    if (CU_add_test(pSuite, "Free Apple", testFreeApple) == NULL) 
+    if (CU_add_test(pSuite, "Spawn Apple", testSpawnApple) == NULL)
+    {
+        CU_cleanup_registry();
+        return CU_get_error();
+    }
+
+    if (CU_add_test(pSuite, "Spawn Apple Same Position", testSpawnAppleSamePosition) == NULL)
+    {
+        CU_cleanup_registry();
+        return CU_get_error();
+    }
+
+    if (CU_add_test(pSuite, "Free Apple", testFreeApple) == NULL)
     {
         CU_cleanup_registry();
         return CU_get_error();
@@ -50,25 +57,25 @@ int main(void)
     return CU_get_error();
 }
 
-int setup(void) 
+int setup(void)
 {
     return 0;
 }
 
-int cleanup(void) 
+int cleanup(void)
 {
     return 0;
 }
 
-void testNewApple(void) 
+void testNewApple(void)
 {
     int minX = 0;
     int minY = 0;
-    int maxX = 2;
+    int maxX = 4;
     int maxY = 2;
 
     apl = newApple(minX, minY, maxX, maxY);
-    
+
     CU_ASSERT_EQUAL(apl->minX, minX);
     CU_ASSERT_EQUAL(apl->minY, minY);
     CU_ASSERT_EQUAL(apl->maxX, maxX);
@@ -77,15 +84,23 @@ void testNewApple(void)
     CU_ASSERT_EQUAL(apl->shp->unt->y, 0);
 }
 
-void testSpawnApple(void) 
+void testSpawnApple(void)
 {
-    spawnApple(apl);
-    
+    CU_ASSERT_EQUAL(spawnApple(apl), 0);
     CU_ASSERT_NOT_EQUAL(apl->shp->unt->x, 0);
     CU_ASSERT_NOT_EQUAL(apl->shp->unt->y, 0);
 }
 
-void testFreeApple(void) 
+void testSpawnAppleSamePosition(void)
+{
+    apl->maxX = 0;
+    apl->maxY = 0;
+
+    spawnApple(apl);
+    CU_ASSERT_EQUAL(spawnApple(apl), 1);
+}
+
+void testFreeApple(void)
 {
     CU_ASSERT_EQUAL(freeApple(apl), 0);
 }

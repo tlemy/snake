@@ -12,6 +12,6 @@ typedef struct Apple
 
 Apple* newApple(int minX, int minY, int maxX, int maxY);
 
-void spawnApple(Apple *apl);
+int spawnApple(Apple *apl);
 
 int freeApple(Apple *apl);

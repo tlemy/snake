@@ -1,5 +1,6 @@
 #include "../include/Apple.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 Apple* newApple(int minX, int minY, int maxX, int maxY)
 {
@@ -19,11 +20,10 @@ this gives the impression it wasn't collected
 this function should return 1 if this is the case
 and 0 if the new position is different
 */
-void spawnApple(Apple *apl)
+int spawnApple(Apple *apl)
 {
     int randX = rand() % (apl->maxX - apl->minX + 1) + apl->minX;
     int randY = rand() % (apl->maxY - apl->minY + 1) + apl->minY;
-
 
     int minIsEven = apl->minX % 2 == 0;
     int randXIsEven = randX % 2 == 0;
@@ -35,8 +35,13 @@ void spawnApple(Apple *apl)
         randX += diff;
     }
 
+    int prevX = apl->shp->unt->x;
+    int prevY =  apl->shp->unt->y;
+
     apl->shp->unt->x = randX;
     apl->shp->unt->y = randY;
+
+    return prevX == randX && prevY == randY;
 }
 
 int freeApple(Apple *apl)

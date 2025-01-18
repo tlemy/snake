@@ -1,5 +1,5 @@
 #include <ncurses.h>
-#include "../include/Position.h"
+#include "../include/Control.h"
 
 #define X_INC_SNAKE 2
 #define Y_INC_SNAKE 1
@@ -34,12 +34,13 @@ int getXInc(Player* pl)
     return 0;
 }
 
-void initPositions(Player* pl)
+void initPlayer(Player* pl)
 {
     pl->left = 0;
     pl->right = 1;
     pl->up = 0;
     pl->down = 0;
+    pl->score = 0;
 }
 
 void initLimits(Limit* lim)
