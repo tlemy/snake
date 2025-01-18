@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-Unit* newUnit(int x, int y, const char* str) 
+Unit* newUnit(int x, int y, const char* str)
 {
     Unit *unt = (Unit*) malloc(sizeof(Unit));
     unt->x = x;
@@ -14,7 +14,7 @@ Unit* newUnit(int x, int y, const char* str)
     return unt;
 }
 
-int freeUnit(Unit* unt) 
+int freeUnit(Unit* unt)
 {
     free(unt->str);
     free(unt);
@@ -22,7 +22,7 @@ int freeUnit(Unit* unt)
     return 1;
 }
 
-Shape* newShape(Unit *unt) 
+Shape* newShape(Unit *unt)
 {
     Shape* shp = (Shape*) malloc(sizeof(Shape));
     shp->idx = 0;
@@ -33,7 +33,7 @@ Shape* newShape(Unit *unt)
     return shp;
 }
 
-Shape* addUnitToShape(Shape *shp, Unit* unt) 
+Shape* addUnitToShape(Shape *shp, Unit* unt)
 {
     int idx = shp->idx;
     Shape* lst = shp;
@@ -45,20 +45,20 @@ Shape* addUnitToShape(Shape *shp, Unit* unt)
     return lst->nxt;
 }
 
-int freeShape(Shape* shp) 
+int freeShape(Shape* shp)
 {
     int numShapes = 0;
 
-    while(shp != NULL) 
+    while(shp != NULL)
     {
         Shape* tmp = shp->nxt;
-        
+
         if (freeUnit(shp->unt))
         {
             free(shp);
             shp = tmp;
             numShapes += 1;
-        } 
+        }
     }
     shp = NULL;
 

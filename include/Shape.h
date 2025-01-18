@@ -1,5 +1,4 @@
-#ifndef SHAPE
-#define SHAPE
+#pragma once
 #define SQUARE "  "
 
 typedef struct Unit
@@ -11,7 +10,7 @@ typedef struct Unit
 } Unit;
 
 struct Shape;
-typedef struct Shape 
+typedef struct Shape
 {
     int idx;
     Unit* unt;
@@ -20,9 +19,11 @@ typedef struct Shape
 } Shape;
 
 Unit* newUnit(int x, int y, const char* str);
-int freeUnit(Unit *unt);
-Shape* newShape(Unit *unt);
-Shape* addUnitToShape(Shape *shp, Unit* unt);
-int freeShape(Shape* shp);
 
-#endif
+int freeUnit(Unit *unt);
+
+Shape* newShape(Unit *unt);
+
+Shape* addUnitToShape(Shape *shp, Unit* unt);
+
+int freeShape(Shape* shp);

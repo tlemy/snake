@@ -1,6 +1,6 @@
 
 main:
-	clang ./src/Snake.c ./src/Apple.c ./src/Shape.c ./src/Main.c -o ./build/snake -lncurses
+	clang ./src/Snake.c ./src/Apple.c ./src/Shape.c ./src/Init.c ./src/Collision.c ./src/Draw.c ./src/Position.c ./src/Main.c -o ./build/snake -lncurses
 	./build/snake
 
 snake-test:

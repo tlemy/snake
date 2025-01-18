@@ -8,7 +8,7 @@ Snake *newSnake(int initX, int initY, int initLen)
     Shape* tail = head;
     int i = 1;
 
-    for (i = 1; i < initLen; i++) 
+    for (i = 1; i < initLen; i++)
     {
         tail = addUnitToShape(tail, newUnit(tail->unt->x - tail->unt->len, tail->unt->y, SQUARE));
     }
@@ -21,7 +21,7 @@ Snake *newSnake(int initX, int initY, int initLen)
     return snk;
 }
 
-Snake *growSnake(Snake* snk) 
+Snake *growSnake(Snake* snk)
 {
     snk->tail = addUnitToShape(snk->tail, newUnit(-1, -1, SQUARE)); // (-1, -1) is out of the viewport
     snk->len += 1;
@@ -32,9 +32,9 @@ Snake *growSnake(Snake* snk)
 int moveSnake(Snake *snk, int diffX, int diffY)
 {
     int i = 1;
-    Shape* ptr = snk->tail; 
+    Shape* ptr = snk->tail;
 
-    for (i = 1; i < snk->len; i++) 
+    for (i = 1; i < snk->len; i++)
     {
         ptr->unt->x = ptr->prv->unt->x;
         ptr->unt->y = ptr->prv->unt->y;
@@ -48,11 +48,11 @@ int moveSnake(Snake *snk, int diffX, int diffY)
     return i;
 }
 
-int freeSnake(Snake *snk) 
+int freeSnake(Snake *snk)
 {
     int i = 0;
 
-    if (freeShape(snk->head) == snk->len) 
+    if (freeShape(snk->head) == snk->len)
     {
         free(snk);
         return 1;
@@ -61,14 +61,14 @@ int freeSnake(Snake *snk)
     return 0;
 }
 
-int isCollidingWithSelf(Snake *snk) 
+int isCollidingWithSelf(Snake *snk)
 {
     Shape *head = snk->head;
     Shape *body = head->nxt;
 
-    for (int i = 1; i < snk->len; i++) 
+    for (int i = 1; i < snk->len; i++)
     {
-        if (head->unt->x == body->unt->x && head->unt->y == body->unt->y) 
+        if (head->unt->x == body->unt->x && head->unt->y == body->unt->y)
         {
             return 1;
         }

@@ -1,8 +1,7 @@
-#ifndef SNAKE
-#define SNAKE
+#pragma once
 #include "Shape.h"
 
-typedef struct Snake 
+typedef struct Snake
 {
     Shape* head;
     Shape* tail;
@@ -10,9 +9,11 @@ typedef struct Snake
 } Snake;
 
 Snake *newSnake(int initX, int initY, int initLen);
-Snake *growSnake(Snake* snk);
-int moveSnake(Snake *snk, int diffX, int diffY);
-int freeSnake(Snake *snk);
-int isCollidingWithSelf(Snake *snk);
 
-#endif
+Snake *growSnake(Snake* snk);
+
+int moveSnake(Snake *snk, int diffX, int diffY);
+
+int freeSnake(Snake *snk);
+
+int isCollidingWithSelf(Snake *snk);

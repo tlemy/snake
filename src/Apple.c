@@ -1,7 +1,7 @@
 #include "../include/Apple.h"
 #include <stdlib.h>
 
-Apple* newApple(int minX, int minY, int maxX, int maxY) 
+Apple* newApple(int minX, int minY, int maxX, int maxY)
 {
     Apple* apl = (Apple*) malloc(sizeof(Apple));
     apl->shp = newShape(newUnit(0, 0, SQUARE));
@@ -13,7 +13,13 @@ Apple* newApple(int minX, int minY, int maxX, int maxY)
     return apl;
 }
 
-void spawnApple(Apple *apl) 
+/*
+when the limits are too small, the apple can spaw at the same place consecutively
+this gives the impression it wasn't collected
+this function should return 1 if this is the case
+and 0 if the new position is different
+*/
+void spawnApple(Apple *apl)
 {
     int randX = rand() % (apl->maxX - apl->minX + 1) + apl->minX;
     int randY = rand() % (apl->maxY - apl->minY + 1) + apl->minY;
@@ -22,9 +28,9 @@ void spawnApple(Apple *apl)
     int minIsEven = apl->minX % 2 == 0;
     int randXIsEven = randX % 2 == 0;
     int diff = randX + 1 <= apl->maxX ? 1 : -1;
-    
+
     /* To align the apple*/
-    if ((minIsEven && !randXIsEven) || (!minIsEven && randXIsEven)) 
+    if ((minIsEven && !randXIsEven) || (!minIsEven && randXIsEven))
     {
         randX += diff;
     }
@@ -33,9 +39,9 @@ void spawnApple(Apple *apl)
     apl->shp->unt->y = randY;
 }
 
-int freeApple(Apple *apl) 
+int freeApple(Apple *apl)
 {
-    if (freeShape(apl->shp)) 
+    if (freeShape(apl->shp))
     {
         free(apl);
         return 0;

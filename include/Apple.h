@@ -1,10 +1,9 @@
-#ifndef APPLE
-#define APPLE
+#pragma once
 #include "Shape.h"
 
-typedef struct Apple 
+typedef struct Apple
 {
-    Shape *shp;    
+    Shape *shp;
     int minX;
     int minY;
     int maxX;
@@ -12,7 +11,7 @@ typedef struct Apple
 } Apple;
 
 Apple* newApple(int minX, int minY, int maxX, int maxY);
-void spawnApple(Apple *apl);
-int freeApple(Apple *apl);
 
-#endif
+void spawnApple(Apple *apl);
+
+int freeApple(Apple *apl);
