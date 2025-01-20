@@ -9,6 +9,7 @@ typedef struct Player
     int down;
     int score;
     Snake* snk;
+    int isDead;
 } Player;
 
 typedef struct Limit
@@ -23,7 +24,7 @@ int getYInc(Player* pl);
 
 int getXInc(Player* pl);
 
-void initPlayer(Player* pl);
+void initPlayer(Player* pl, int marginTop, Limit* lim);
 
 void initLimits(Limit* lim);
 

@@ -34,23 +34,28 @@ int getXInc(Player* pl)
     return 0;
 }
 
-void initPlayer(Player* pl)
+void  initPlayer(Player* pl, int marginTop, Limit* lim)
 {
+    int initX = lim->minX;
+    int initY = lim->minY + marginTop;
+
     pl->left = 0;
     pl->right = 1;
     pl->up = 0;
     pl->down = 0;
+    pl->snk = newSnake(initX, initY, lim->maxX / 10);
+    pl->isDead = 0;
     pl->score = 0;
 }
 
 void initLimits(Limit* lim)
 {
     lim->minX = 1;
-    lim->minY = 1;
+    lim->minY = 2;
 
     getmaxyx(stdscr, lim->maxY, lim->maxX);
-    lim->maxY -= 1; // rows start at idx 0
-    lim->maxX -= 1; // columns start at idx 0
+    lim->maxY -= 1;
+    lim->maxX -= 1;
 
     /*
     * The squares being displayed take 1 row and 2 columns. ("  ")

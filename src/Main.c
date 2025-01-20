@@ -9,22 +9,31 @@
 #define LINE_FEED_KEY 10
 #define CARRIAGE_RETURN_KEY 13
 #define SLEEP_TIME 50 // millisecs
+#define N_BOTS 3
+#define N_PLAYERS 1 + N_BOTS
 
+// spread out the bots at 4 corners
 int main (void)
 {
     setup();
 
-    int gameOver = false;
-    Player p1;
     Limit lim;
-
     initLimits(&lim);
-    initPlayer(&p1);
 
-    p1.snk = newSnake(lim.minX, lim.minY, lim.maxX / 10);
-    Apple* apl = newApple(lim.minX, lim.minY, lim.maxX - 2, lim.maxY -1);
+    int marginTop = (int) ((lim.maxY - lim.minY) / N_BOTS);
 
+    Player pls[N_PLAYERS] = {};
+
+    for (int i = 0; i < N_PLAYERS; i++)
+    {
+        Player* ply = &(pls[i]);
+        initPlayer(ply, i * marginTop, &lim);
+    }
+
+    Apple* apl = newApple(lim.minX, lim.minY - 1, lim.maxX - 1, lim.maxY - 1);
     spawnApple(apl);
+
+    Player* human = &(pls[0]);
 
     while(1)
     {
@@ -33,63 +42,79 @@ int main (void)
 
         if (CONTROL_C_KEY == c)
         {
-            freeSnake(p1.snk);
+            for (int i = 0; i < N_PLAYERS; i++)
+            {
+                Player* ply = &(pls[i]);
+                freeSnake(ply->snk);
+            }
+
             freeApple(apl);
             endwin(); // free resources and disable curses mode
             break;
         }
 
-        if (!gameOver)
+        if (!human->isDead)
         {
-            controlManually(c, &p1);
+            controlManually(c, human);
         }
         else
         {
             if (CARRIAGE_RETURN_KEY == c || LINE_FEED_KEY == c)
             {
-                gameOver = false;
-                initPlayer(&p1);
-                initLimits(&lim);
-                p1.snk = newSnake(lim.minX, lim.minY, lim.maxX / 10);
-                p1.score = 0;
+                for (int i = 0; i < N_PLAYERS; i++)
+                {
+                    Player* ply = &(pls[i]);
+                    initPlayer(ply, i * marginTop, &lim);
+                }
             }
         }
 
-        // movement
-        if (!gameOver)
+        erase();
+
+        for (int i = 0; i < N_PLAYERS; i++)
         {
-            moveSnake(p1.snk, getXInc(&p1), getYInc(&p1));
+            Player* ply = &(pls[i]);
+
+            // movement
+            if (!ply->isDead)
+            {
+                moveSnake(ply->snk, getXInc(ply), getYInc(ply));
+            }
+
+            // collision
+            if (!ply->isDead && (isBorderCollision(ply->snk, lim.minX, lim.minY, lim.maxX, lim.maxY)
+                    || isCollidingWithSelf(ply->snk)))
+            {
+                ply->isDead = 1;
+            }
+
+            if (isAppleCollision(ply->snk, apl))
+            {
+                growSnake(ply->snk);
+
+                while(spawnApple(apl));
+
+                ++ply->score;
+            }
+
+            // draw snake
+            drawShape(ply->snk->head, ply->snk->len, getPlayerSnakeColorPair());
         }
 
-        // collision
-        if (!gameOver && (isBorderCollision(p1.snk, lim.minX, lim.minY, lim.maxX, lim.maxY)
-                || isCollidingWithSelf(p1.snk)))
+        // draw apple
+        drawShape(apl->shp, 1, getAppleColorPair());
+
+        // draw borders
+        if (!human->isDead)
         {
-            gameOver = true;
-        }
-
-        if (isAppleCollision(p1.snk, apl))
-        {
-            growSnake(p1.snk);
-
-            while(spawnApple(apl));
-
-            ++p1.score;
-        }
-
-        // display
-        if (!gameOver)
-        {
-            erase();
-            drawBorders(lim.maxX, lim.maxY, getBorderColorPair(), p1.score);
-            drawShape(p1.snk->head, p1.snk->len, getPlayerSnakeColorPair());
-            drawShape(apl->shp, 1, getAppleColorPair());
-            refresh();
+            drawBorders(lim.maxX, lim.maxY, getBorderColorPair(), human->score);
         }
         else
         {
-            drawBorders(lim.maxX, lim.maxY, getAppleColorPair(), p1.score);
+            drawBorders(lim.maxX, lim.maxY, getAppleColorPair(), human->score);
         }
+
+        refresh();
         napms(1000 / 20);
     }
 }
