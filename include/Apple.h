@@ -10,7 +10,7 @@ typedef struct Apple
     int maxY;
 } Apple;
 
-Apple* newApple(int minX, int minY, int maxX, int maxY);
+void initApple(Apple* apl, int minX, int minY, int maxX, int maxY);
 
 int spawnApple(Apple *apl);
 

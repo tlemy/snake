@@ -2,16 +2,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-Apple* newApple(int minX, int minY, int maxX, int maxY)
+void initApple(Apple* apl, int minX, int minY, int maxX, int maxY)
 {
-    Apple* apl = (Apple*) malloc(sizeof(Apple));
     apl->shp = newShape(newUnit(0, 0, SQUARE));
-    apl->minX = minX;
-    apl->minY = minY;
-    apl->maxX = maxX;
-    apl->maxY = maxY;
-
-    return apl;
+    apl->minX = minX + 2;
+    apl->minY = minY + 1;
+    apl->maxX = maxX - 2;
+    apl->maxY = maxY - 1;
 }
 
 /*
@@ -48,7 +45,6 @@ int freeApple(Apple *apl)
 {
     if (freeShape(apl->shp))
     {
-        free(apl);
         return 0;
     }
     return -1;
