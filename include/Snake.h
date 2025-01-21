@@ -15,5 +15,3 @@ Snake *growSnake(Snake* snk);
 int moveSnake(Snake *snk, int diffX, int diffY);
 
 int freeSnake(Snake *snk);
-
-int isCollidingWithSelf(Snake *snk);

@@ -1,4 +1,8 @@
 #include <ncurses.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
 #include "../include/Control.h"
 
 #define X_INC_SNAKE 2
@@ -43,9 +47,10 @@ void  initPlayer(Player* pl, int marginTop, Limit* lim)
     pl->right = 1;
     pl->up = 0;
     pl->down = 0;
-    pl->snk = newSnake(initX, initY, lim->maxX / 10);
+    pl->snk = newSnake(initX, initY, lim->maxX / 20);
     pl->isDead = 0;
     pl->score = 0;
+    pl->isHuman = 0;
 }
 
 void initLimits(Limit* lim)
@@ -65,6 +70,30 @@ void initLimits(Limit* lim)
     {
         lim->maxX -= 1;
     }
+
+    lim->grid = (int**) malloc(lim->maxX * sizeof(int*));
+
+    for (int i = 0; i < lim->maxX; i++)
+    {
+        lim->grid[i] = (int*) malloc(lim->maxY * sizeof(int));
+    }
+}
+
+void resetGrid(Limit* lim)
+{
+    for (int i = 0; i < lim->maxY; i++)
+    {
+        memset(lim->grid[i], 0, lim->maxX * lim->maxY * (sizeof(int)));
+    }
+}
+
+void freeGrid(Limit* lim)
+{
+    for (int i = 0; i < lim->maxY; i++)
+    {
+        free(lim->grid[i]);
+    }
+    free(lim->grid);
 }
 
 void controlManually(int c, Player* pl)
@@ -97,4 +126,72 @@ void controlManually(int c, Player* pl)
         pl->up = 0;
         pl->down = 0;
     }
+}
+
+void controlAutomatically(Player* pl, Limit* lim)
+{
+    Shape* head = pl->snk->head;
+
+    // implement algo to avoid borders
+    // implement algo to avoid player in grid
+    // implement algo to seek apples
+}
+
+int isBorderCollision(Snake *snk, Limit* lim)
+{
+    int leftBorderCollision = snk->head->unt->x < lim->minX;
+    int topBorderCollision = snk->head->unt->y < lim->minY;
+    int rightBorderCollision = snk->head->unt->x >= lim->maxX - 2; // each unit is 2 characters long
+    int bottomBorderCollision = snk->head->unt->y >= lim->maxY - 1; // each unit is one character high
+
+    return leftBorderCollision || rightBorderCollision || topBorderCollision || bottomBorderCollision;
+}
+
+int isAppleCollision(Snake* snk, Apple* apl)
+{
+    int isXEqual = snk->head->unt->x == apl->shp->unt->x;
+    int isYEqual = snk->head->unt->y == apl->shp->unt->y;
+
+    return isXEqual && isYEqual;
+}
+
+int isCollidingWithSelf(Snake *snk)
+{
+    Shape *head = snk->head;
+    Shape *body = head->nxt;
+
+    for (int i = 1; i < snk->len; i++)
+    {
+        if (head->unt->x == body->unt->x && head->unt->y == body->unt->y)
+        {
+            return 1;
+        }
+        body = body->nxt;
+    }
+    return 0;
+}
+
+int isCollidingWithOther(Snake* snk1, Snake* snk2, Limit* lim)
+{
+    Shape* head = snk1->head;
+    Shape* other = snk2->head;
+
+    for (int i = 1; i < snk2->len; i++)
+    {
+        if (head->unt->x == other->unt->x && head->unt->y == other->unt->y)
+        {
+            return 1;
+        }
+
+        int xToAdd = other->unt->x;
+        int yToAdd = other->unt->y;
+
+        if (xToAdd > 0 && yToAdd > 0)
+        {
+            lim->grid[other->unt->x - 1][other->unt->y - 1] = 1; // -1 because array starts at 0, but (x, y) start at 1
+        }
+
+        other = other->nxt;
+    }
+    return 0;
 }
