@@ -9,6 +9,7 @@ void initApple(Apple* apl, int minX, int minY, int maxX, int maxY)
     apl->minY = minY + 1;
     apl->maxX = maxX - 2;
     apl->maxY = maxY - 1;
+    apl->isEaten = 1;
 }
 
 /*

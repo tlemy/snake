@@ -13,7 +13,7 @@
 #define N_BOTS 1
 #define N_PLAYERS 1 + N_BOTS
 
-void updateApples(Player* ply, Apple* apls);
+void updateApples(Apple* apls);
 
 void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c);
 
@@ -28,7 +28,6 @@ void freeSnakes(Player* pls);
 void freeApples(Apple* apls);
 
 // make snakes spawn more evenly spread out
-// remove apples from player update function
 // fix resetGrid
 
 int main (void)
@@ -70,6 +69,7 @@ int main (void)
 
         erase();
         updateBorders(human, &lim);
+        updateApples(apls);
         updatePlayers(pls, &lim, apls, c);
         refresh();
 
@@ -118,7 +118,17 @@ void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
         }
 
         // apples collision
-        updateApples(ply, apls);
+        for (int i = 0; i < N_APPLES; i++)
+        {
+            Apple* apl = &(apls[i]);
+
+            if (!ply->isDead && isAppleCollision(ply->snk, apl))
+            {
+                growSnake(ply->snk);
+                apl->isEaten = 1;
+                ++ply->score;
+            }
+        }
 
         // mouvement
         if (!ply->isDead)
@@ -127,21 +137,23 @@ void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
         }
 
         // draw snake
-        drawShape(ply->snk->head, ply->snk->len, getPlayerSnakeColorPair());
+        if (!ply->isDead)
+        {
+            drawShape(ply->snk->head, ply->snk->len, getPlayerSnakeColorPair());
+        }
     }
 }
 
-void updateApples(Player* ply, Apple* apls)
+void updateApples(Apple* apls)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
         Apple* apl = &(apls[i]);
 
-        if (!ply->isDead && isAppleCollision(ply->snk, apl))
+        if (apl->isEaten)
         {
-            growSnake(ply->snk);
             while(spawnApple(apl));
-            ++ply->score;
+            apl->isEaten = 0;
         }
         drawShape(apl->shp, 1, getAppleColorPair());
     }
