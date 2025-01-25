@@ -71,28 +71,16 @@ void initLimits(Limit* lim)
         lim->maxX -= 1;
     }
 
-    lim->grid = (int**) malloc(lim->maxX * sizeof(int*));
-
-    for (int i = 0; i < lim->maxX; i++)
-    {
-        lim->grid[i] = (int*) malloc(lim->maxY * sizeof(int));
-    }
+    lim->grid = (int*) malloc(lim->maxX * lim->maxY * sizeof(int));
 }
 
 void resetGrid(Limit* lim)
 {
-    for (int i = 0; i < lim->maxY; i++)
-    {
-        memset(lim->grid[i], 0, lim->maxX * lim->maxY * (sizeof(int)));
-    }
+    memset(lim->grid, 0, lim->maxX * lim->maxY * (sizeof(int)));
 }
 
 void freeGrid(Limit* lim)
 {
-    for (int i = 0; i < lim->maxY; i++)
-    {
-        free(lim->grid[i]);
-    }
     free(lim->grid);
 }
 
@@ -130,8 +118,7 @@ void controlManually(int c, Player* pl)
 
 void controlAutomatically(Player* pl, Limit* lim)
 {
-    Shape* head = pl->snk->head;
-
+    // Shape* head = pl->snk->head;
     // implement algo to avoid borders
     // implement algo to avoid player in grid
     // implement algo to seek apples
@@ -155,7 +142,7 @@ int isAppleCollision(Snake* snk, Apple* apl)
     return isXEqual && isYEqual;
 }
 
-int isCollidingWithSelf(Snake *snk)
+int isCollidingWithSelf(Snake* snk, Limit* lim)
 {
     Shape *head = snk->head;
     Shape *body = head->nxt;
@@ -166,6 +153,7 @@ int isCollidingWithSelf(Snake *snk)
         {
             return 1;
         }
+
         body = body->nxt;
     }
     return 0;
@@ -181,14 +169,6 @@ int isCollidingWithOther(Snake* snk1, Snake* snk2, Limit* lim)
         if (head->unt->x == other->unt->x && head->unt->y == other->unt->y)
         {
             return 1;
-        }
-
-        int xToAdd = other->unt->x;
-        int yToAdd = other->unt->y;
-
-        if (xToAdd > 0 && yToAdd > 0)
-        {
-            lim->grid[other->unt->x - 1][other->unt->y - 1] = 1; // -1 because array starts at 0, but (x, y) start at 1
         }
 
         other = other->nxt;

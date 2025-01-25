@@ -20,7 +20,7 @@ typedef struct Limit
     int minY;
     int maxX;
     int maxY;
-    int** grid;
+    int* grid;
 } Limit;
 
 int getYInc(Player* pl);
@@ -43,6 +43,6 @@ int isBorderCollision(Snake *snk, Limit* lim);
 
 int isAppleCollision(Snake* snk, Apple* apl);
 
-int isCollidingWithSelf(Snake *snk);
+int isCollidingWithSelf(Snake *snk, Limit* lim);
 
 int isCollidingWithOther(Snake* snk1, Snake* snk2, Limit* lim);

@@ -85,7 +85,7 @@ void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
 
         // self collision, border collision
         if (!ply->isDead && (isBorderCollision(ply->snk, lim)
-                || isCollidingWithSelf(ply->snk)))
+                || isCollidingWithSelf(ply->snk, lim)))
         {
             ply->isDead = 1;
         }
@@ -110,7 +110,7 @@ void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
         if (!ply->isHuman)
         {
             controlAutomatically(ply, lim);
-            // resetGrid(lim); TODO fix
+            resetGrid(lim);
         }
         else
         {

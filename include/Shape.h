@@ -5,7 +5,6 @@ typedef struct Unit
 {
     int x;
     int y;
-    int len;
     char *str;
 } Unit;
 
