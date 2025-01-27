@@ -7,7 +7,7 @@ Unit* newUnit(int x, int y, const char* str)
     Unit *unt = (Unit*) malloc(sizeof(Unit));
     unt->x = x;
     unt->y = y;
-    unt->str = (char*) malloc(sizeof(char) * unt->len);
+    unt->str = (char*) malloc(sizeof(char) * strlen(str));
     strcpy(unt->str, str);
 
     return unt;

@@ -10,7 +10,7 @@ Snake *newSnake(int initX, int initY, int initLen)
 
     for (i = 1; i < initLen; i++)
     {
-        tail = addUnitToShape(tail, newUnit(tail->unt->x - tail->unt->len, tail->unt->y, SQUARE));
+        tail = addUnitToShape(tail, newUnit(tail->unt->x - 2, tail->unt->y, SQUARE));
     }
 
     Snake *snk = (Snake*) malloc(sizeof(Snake));
