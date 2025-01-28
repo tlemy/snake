@@ -24,9 +24,9 @@ void drawBorders(int maxX, int maxY, int pair, int scr)
 {
     char str[32];
     sprintf(str, " [ SCORE: %d ] ", scr);
-    attron(COLOR_PAIR(getTextColorPair()));
+    attron(COLOR_PAIR(BLACK_WHITE));
     mvaddstr(0, 1, str);
-    attroff(COLOR_PAIR(getTextColorPair()));
+    attroff(COLOR_PAIR(BLACK_WHITE));
 
     attron(COLOR_PAIR(pair));
 

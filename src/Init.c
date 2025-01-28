@@ -1,9 +1,5 @@
 #include <ncurses.h>
-
-#define WHITE_WHITE 1
-#define RED_RED 2
-#define GREEN_GREEN 3
-#define BLACK_WHITE 4
+#include "../include/Init.h"
 
 void setup(void)
 {
@@ -17,24 +13,5 @@ void setup(void)
     init_pair(RED_RED, COLOR_RED, COLOR_RED); // apple color
     init_pair(GREEN_GREEN, COLOR_GREEN, COLOR_GREEN); // snake color
     init_pair(BLACK_WHITE, COLOR_BLACK, COLOR_WHITE); // score color
-}
-
-int getBorderColorPair()
-{
-    return WHITE_WHITE;
-}
-
-int getAppleColorPair()
-{
-    return RED_RED;
-}
-
-int getPlayerSnakeColorPair()
-{
-    return GREEN_GREEN;
-}
-
-int getTextColorPair()
-{
-    return BLACK_WHITE;
+    init_pair(BLUE_BLUE, COLOR_CYAN, COLOR_CYAN); // enemies
 }

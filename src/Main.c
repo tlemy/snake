@@ -10,7 +10,7 @@
 #define CARRIAGE_RETURN_KEY 13
 #define SLEEP_TIME 50 // millisecs
 #define N_APPLES 24
-#define N_BOTS 1
+#define N_BOTS 3
 #define N_PLAYERS 1 + N_BOTS
 
 void updateApples(Apple* apls);
@@ -21,14 +21,13 @@ void updateBorders(Player* human, Limit* lim);
 
 void initPlayers(Player* pls, Limit* lim);
 
+void initHuman(Player* pls, Limit* lim);
+
 void initApples(Apple* apls, Limit* lim);
 
 void freeSnakes(Player* pls);
 
 void freeApples(Apple* apls);
-
-// make snakes spawn more evenly spread out
-// fix resetGrid
 
 int main (void)
 {
@@ -63,7 +62,7 @@ int main (void)
         // monitor for respawn
         if (human->isDead && (CARRIAGE_RETURN_KEY == c || LINE_FEED_KEY == c))
         {
-            initPlayer(human, 0, &lim);
+            initHuman(pls, &lim);
             human->isHuman = 1;
         }
 
@@ -71,6 +70,7 @@ int main (void)
         updateBorders(human, &lim);
         updateApples(apls);
         updatePlayers(pls, &lim, apls, c);
+        resetGrid(&lim);
         refresh();
 
         napms(1000 / 20);
@@ -100,6 +100,11 @@ void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
 
             Player* other = &(pls[j]);
 
+            if (other->isDead)
+            {
+                continue;
+            }
+
             if (!ply->isDead && isCollidingWithOther(ply->snk, other->snk, lim))
             {
                 ply->isDead = 1;
@@ -110,7 +115,6 @@ void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
         if (!ply->isHuman)
         {
             controlAutomatically(ply, lim);
-            resetGrid(lim);
         }
         else
         {
@@ -139,7 +143,14 @@ void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
         // draw snake
         if (!ply->isDead)
         {
-            drawShape(ply->snk->head, ply->snk->len, getPlayerSnakeColorPair());
+            if (!ply->isHuman)
+            {
+                drawShape(ply->snk->head, ply->snk->len, BLUE_BLUE);
+            }
+            else
+            {
+                drawShape(ply->snk->head, ply->snk->len, GREEN_GREEN);
+            }
         }
     }
 }
@@ -155,7 +166,7 @@ void updateApples(Apple* apls)
             while(spawnApple(apl));
             apl->isEaten = 0;
         }
-        drawShape(apl->shp, 1, getAppleColorPair());
+        drawShape(apl->shp, 1, RED_RED);
     }
 }
 
@@ -163,21 +174,32 @@ void updateBorders(Player* human, Limit* lim)
 {
     if (!human->isDead)
     {
-        drawBorders(lim->maxX, lim->maxY, getBorderColorPair(), human->score);
+        drawBorders(lim->maxX, lim->maxY, BLACK_WHITE, human->score);
     }
     else
     {
-        drawBorders(lim->maxX, lim->maxY, getAppleColorPair(), human->score);
+        drawBorders(lim->maxX, lim->maxY, RED_RED, human->score);
     }
 }
 
 void initPlayers(Player* pls, Limit* lim)
 {
-    for (int i = 0; i < N_PLAYERS; i++)
-    {
-        Player* ply = &(pls[i]);
-        initPlayer(ply, i * 10, lim);
-    }
+    initHuman(pls, lim);
+
+    Player* bot1 = &(pls[1]);
+    initPlayer(bot1, lim, lim->maxX - (X_INC_SNAKE * 2), lim->maxY / 2, WEST);
+
+    Player* bot2 = &(pls[2]);
+    initPlayer(bot2, lim, lim->maxX / 2, lim->minY, SOUTH);
+
+    Player* bot3 = &(pls[3]);
+    initPlayer(bot3, lim, lim->maxX / 2, lim->maxY - (Y_INC_SNAKE * 2), NORTH);
+}
+
+void initHuman(Player* pls, Limit* lim)
+{
+    Player* human = &(pls[0]);
+    initPlayer(human, lim, lim->minX, lim->maxY / 2, EAST);
 }
 
 void initApples(Apple* apls, Limit* lim)

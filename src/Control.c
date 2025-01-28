@@ -5,20 +5,13 @@
 
 #include "../include/Control.h"
 
-#define X_INC_SNAKE 2
-#define Y_INC_SNAKE 1
-#define W_KEY 'w'
-#define A_KEY 'a'
-#define S_KEY 's'
-#define D_KEY 'd'
-
 int getYInc(Player* pl)
 {
-    if (pl->up)
+    if (pl->dirct == NORTH)
     {
         return -1 * Y_INC_SNAKE;
     }
-    else if (pl->down)
+    else if (pl->dirct == SOUTH)
     {
         return Y_INC_SNAKE;
     }
@@ -27,27 +20,21 @@ int getYInc(Player* pl)
 
 int getXInc(Player* pl)
 {
-    if (pl->left)
+    if (pl->dirct == WEST)
     {
         return -1 * X_INC_SNAKE;
     }
-    else if (pl->right)
+    else if (pl->dirct == EAST)
     {
         return X_INC_SNAKE;
     }
     return 0;
 }
 
-void  initPlayer(Player* pl, int marginTop, Limit* lim)
+void  initPlayer(Player* pl, Limit* lim, int x, int y, int dirct)
 {
-    int initX = lim->minX;
-    int initY = lim->minY + marginTop;
-
-    pl->left = 0;
-    pl->right = 1;
-    pl->up = 0;
-    pl->down = 0;
-    pl->snk = newSnake(initX, initY, lim->maxX / 20);
+    pl->dirct = dirct;
+    pl->snk = newSnake(x, y, lim->maxX / 30, dirct);
     pl->isDead = 0;
     pl->score = 0;
     pl->isHuman = 0;
@@ -86,33 +73,21 @@ void freeGrid(Limit* lim)
 
 void controlManually(int c, Player* pl)
 {
-    if (c == W_KEY && !(pl->down))
+    if (c == W_KEY && pl->dirct != SOUTH)
     {
-        pl->up = 1;
-        pl->down = 0;
-        pl->left = 0;
-        pl->right = 0;
+        pl->dirct = NORTH;
     }
-    else if (c == S_KEY && !(pl->up))
+    else if (c == S_KEY && pl->dirct != NORTH)
     {
-        pl->down = 1;
-        pl->up = 0;
-        pl->left = 0;
-        pl->right = 0;
+        pl->dirct = SOUTH;
     }
-    else if (c == A_KEY && !(pl->right))
+    else if (c == A_KEY && pl->dirct != EAST)
     {
-        pl->left = 1;
-        pl->right = 0;
-        pl->up = 0;
-        pl->down = 0;
+        pl->dirct = WEST;
     }
-    else if (c == D_KEY && !(pl->left))
+    else if (c == D_KEY && pl->dirct != WEST)
     {
-        pl->right = 1;
-        pl->left = 0;
-        pl->up = 0;
-        pl->down = 0;
+        pl->dirct = EAST;
     }
 }
 

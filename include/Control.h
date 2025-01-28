@@ -2,12 +2,14 @@
 #include "./Snake.h"
 #include "../include/Apple.h"
 
+#define W_KEY 'w'
+#define A_KEY 'a'
+#define S_KEY 's'
+#define D_KEY 'd'
+
 typedef struct Player
 {
-    int left;
-    int right;
-    int up;
-    int down;
+    int dirct;
     int score;
     Snake* snk;
     int isDead;
@@ -27,7 +29,7 @@ int getYInc(Player* pl);
 
 int getXInc(Player* pl);
 
-void initPlayer(Player* pl, int marginTop, Limit* lim);
+void  initPlayer(Player* pl, Limit* lim, int x, int y, int dirct);
 
 void initLimits(Limit* lim);
 

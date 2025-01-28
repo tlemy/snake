@@ -2,15 +2,34 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-Snake *newSnake(int initX, int initY, int initLen)
+Snake *newSnake(int initX, int initY, int initLen, int dirct)
 {
     Shape* head = newShape(newUnit(initX, initY, SQUARE));
     Shape* tail = head;
     int i = 1;
+    int xModifier = 0;
+    int yModifier = 0;
+
+    if (dirct == NORTH)
+    {
+        yModifier = -Y_INC_SNAKE;
+    }
+    else if (dirct == SOUTH)
+    {
+        yModifier = Y_INC_SNAKE;
+    }
+    else if (dirct == EAST)
+    {
+        xModifier = X_INC_SNAKE;
+    }
+    else if (dirct == WEST)
+    {
+        xModifier = -X_INC_SNAKE;
+    }
 
     for (i = 1; i < initLen; i++)
     {
-        tail = addUnitToShape(tail, newUnit(tail->unt->x - 2, tail->unt->y, SQUARE));
+        tail = addUnitToShape(tail, newUnit(tail->unt->x - xModifier, tail->unt->y - yModifier, SQUARE));
     }
 
     Snake *snk = (Snake*) malloc(sizeof(Snake));
