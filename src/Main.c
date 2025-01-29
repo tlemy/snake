@@ -17,6 +17,12 @@ void updateApples(Apple* apls);
 
 void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c);
 
+void checkOtherPlayersForCollision(Player* pls, Limit* lim, int i);
+
+void checkApplesForCollision(Player* ply, Apple* apls);
+
+void drawSnake(Player* ply);
+
 void updateBorders(Player* human, Limit* lim);
 
 void initPlayers(Player* pls, Limit* lim);
@@ -28,6 +34,10 @@ void initApples(Apple* apls, Limit* lim);
 void freeSnakes(Player* pls);
 
 void freeApples(Apple* apls);
+
+// update grid
+// implement bfs
+// clean dead code
 
 int main (void)
 {
@@ -90,26 +100,7 @@ void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
             ply->isDead = 1;
         }
 
-        // other players collision
-        for (int j = 0; j < N_PLAYERS; j++)
-        {
-            if (i == j)
-            {
-                continue;
-            }
-
-            Player* other = &(pls[j]);
-
-            if (other->isDead)
-            {
-                continue;
-            }
-
-            if (!ply->isDead && isCollidingWithOther(ply->snk, other->snk, lim))
-            {
-                ply->isDead = 1;
-            }
-        }
+        checkOtherPlayersForCollision(pls, lim, i);
 
         // control
         if (!ply->isHuman)
@@ -121,18 +112,7 @@ void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
             controlManually(c, ply);
         }
 
-        // apples collision
-        for (int i = 0; i < N_APPLES; i++)
-        {
-            Apple* apl = &(apls[i]);
-
-            if (!ply->isDead && isAppleCollision(ply->snk, apl))
-            {
-                growSnake(ply->snk);
-                apl->isEaten = 1;
-                ++ply->score;
-            }
-        }
+        checkApplesForCollision(ply, apls);
 
         // mouvement
         if (!ply->isDead)
@@ -140,17 +120,61 @@ void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
             moveSnake(ply->snk, getXInc(ply), getYInc(ply));
         }
 
-        // draw snake
-        if (!ply->isDead)
+        drawSnake(ply);
+    }
+}
+
+void checkOtherPlayersForCollision(Player* pls, Limit* lim, int i)
+{
+    Player* ply = &(pls[i]);
+
+    for (int j = 0; j < N_PLAYERS; j++)
+    {
+        if (i == j)
         {
-            if (!ply->isHuman)
-            {
-                drawShape(ply->snk->head, ply->snk->len, BLUE_BLUE);
-            }
-            else
-            {
-                drawShape(ply->snk->head, ply->snk->len, GREEN_GREEN);
-            }
+            continue;
+        }
+
+        Player* other = &(pls[j]);
+
+        if (other->isDead)
+        {
+            continue;
+        }
+
+        if (!ply->isDead && isCollidingWithOther(ply->snk, other->snk, lim))
+        {
+            ply->isDead = 1;
+        }
+    }
+}
+
+void checkApplesForCollision(Player* ply, Apple* apls)
+{
+    for (int i = 0; i < N_APPLES; i++)
+    {
+        Apple* apl = &(apls[i]);
+
+        if (!ply->isDead && isAppleCollision(ply->snk, apl))
+        {
+            growSnake(ply->snk);
+            apl->isEaten = 1;
+            ++ply->score;
+        }
+    }
+}
+
+void drawSnake(Player* ply)
+{
+    if (!ply->isDead)
+    {
+        if (!ply->isHuman)
+        {
+            drawShape(ply->snk->head, ply->snk->len, BLUE_BLUE);
+        }
+        else
+        {
+            drawShape(ply->snk->head, ply->snk->len, GREEN_GREEN);
         }
     }
 }
