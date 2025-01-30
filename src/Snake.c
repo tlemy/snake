@@ -1,10 +1,11 @@
-#include "../include/Snake.h"
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "../include/Snake.h"
+
 Snake *newSnake(int initX, int initY, int initLen, int dirct)
 {
-    Shape* head = newShape(newUnit(initX, initY, SQUARE));
+    Shape* head = newShape(initX, initY, SQUARE);
     Shape* tail = head;
     int i = 1;
     int xModifier = 0;
@@ -29,7 +30,7 @@ Snake *newSnake(int initX, int initY, int initLen, int dirct)
 
     for (i = 1; i < initLen; i++)
     {
-        tail = addUnitToShape(tail, newUnit(tail->unt->x - xModifier, tail->unt->y - yModifier, SQUARE));
+        tail = growShape(tail, newShape(tail->x - xModifier, tail->y - yModifier, SQUARE));
     }
 
     Snake *snk = (Snake*) malloc(sizeof(Snake));
@@ -42,7 +43,7 @@ Snake *newSnake(int initX, int initY, int initLen, int dirct)
 
 Snake *growSnake(Snake* snk)
 {
-    snk->tail = addUnitToShape(snk->tail, newUnit(-1, -1, SQUARE)); // (-1, -1) is out of the viewport
+    snk->tail = growShape(snk->tail, newShape(-1, -1, SQUARE)); // (-1, -1) is out of the viewport
     snk->len += 1;
 
     return snk;
@@ -55,14 +56,14 @@ int moveSnake(Snake *snk, int diffX, int diffY)
 
     for (i = 1; i < snk->len; i++)
     {
-        ptr->unt->x = ptr->prv->unt->x;
-        ptr->unt->y = ptr->prv->unt->y;
+        ptr->x = ptr->prv->x;
+        ptr->y = ptr->prv->y;
 
         ptr = ptr->prv;
     }
 
-    snk->head->unt->x += diffX;
-    snk->head->unt->y += diffY;
+    snk->head->x += diffX;
+    snk->head->y += diffY;
 
     return i;
 }

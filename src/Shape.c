@@ -1,43 +1,28 @@
-#include "../include/Shape.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-Unit* newUnit(int x, int y, const char* str)
-{
-    Unit *unt = (Unit*) malloc(sizeof(Unit));
-    unt->x = x;
-    unt->y = y;
-    unt->str = (char*) malloc(sizeof(char) * strlen(str));
-    strcpy(unt->str, str);
+#include "../include/Shape.h"
 
-    return unt;
-}
-
-int freeUnit(Unit* unt)
-{
-    free(unt->str);
-    free(unt);
-
-    return 1;
-}
-
-Shape* newShape(Unit *unt)
+Shape* newShape(int x, int y, char* str)
 {
     Shape* shp = (Shape*) malloc(sizeof(Shape));
     shp->idx = 0;
-    shp->unt = unt;
+    shp->x = x;
+    shp->y = y;
+    shp->str = str;
     shp->prv = NULL;
     shp->nxt = NULL;
 
     return shp;
 }
 
-Shape* addUnitToShape(Shape *shp, Unit* unt)
+Shape* growShape(Shape *shp, Shape *newShape)
 {
     int idx = shp->idx;
     Shape* lst = shp;
 
-    lst->nxt = newShape(unt);
+    lst->nxt = newShape;
     lst->nxt->prv = lst;
     lst->nxt->idx = idx + 1;
 
@@ -51,15 +36,28 @@ int freeShape(Shape* shp)
     while(shp != NULL)
     {
         Shape* tmp = shp->nxt;
-
-        if (freeUnit(shp->unt))
-        {
-            free(shp);
-            shp = tmp;
-            numShapes += 1;
-        }
+        free(shp);
+        shp = tmp;
+        numShapes += 1;
     }
     shp = NULL;
 
     return numShapes;
+}
+
+int isCollidingWithPoint(Shape sh, int x, int y, int len)
+{
+    for (int i = 0; i < len; i++)
+    {
+        if (x == sh.x && y == sh.y)
+        {
+            return 1;
+        }
+
+        if (sh.nxt != NULL)
+        {
+            sh = *(sh.nxt);
+        }
+    }
+    return 0;
 }

@@ -1,13 +1,6 @@
 #pragma once
+
 #include "Shape.h"
-
-#define X_INC_SNAKE 2
-#define Y_INC_SNAKE 1
-
-#define NORTH 1
-#define SOUTH 2
-#define EAST 3
-#define WEST 4
 
 typedef struct Snake
 {

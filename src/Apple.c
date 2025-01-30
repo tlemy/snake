@@ -1,10 +1,11 @@
-#include "../include/Apple.h"
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "../include/Apple.h"
+
 void initApple(Apple* apl, int minX, int minY, int maxX, int maxY)
 {
-    apl->shp = newShape(newUnit(0, 0, SQUARE));
+    apl->shp = newShape(0, 0, SQUARE);
     apl->minX = minX + 2;
     apl->minY = minY + 1;
     apl->maxX = maxX - 2;
@@ -33,11 +34,11 @@ int spawnApple(Apple *apl)
         randX += diff;
     }
 
-    int prevX = apl->shp->unt->x;
-    int prevY =  apl->shp->unt->y;
+    int prevX = apl->shp->x;
+    int prevY =  apl->shp->y;
 
-    apl->shp->unt->x = randX;
-    apl->shp->unt->y = randY;
+    apl->shp->x = randX;
+    apl->shp->y = randY;
 
     return prevX == randX && prevY == randY;
 }
