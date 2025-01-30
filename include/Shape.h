@@ -1,20 +1,9 @@
 #pragma once
 
-#define BLOC ' '
+#include "../include/Params.h"
+
+#define SPACE ' '
 #define SQUARE "  "
-
-#define X_INC_SNAKE 2
-#define Y_INC_SNAKE 1
-
-#define NORTH 1
-#define SOUTH 2
-#define EAST 3
-#define WEST 4
-
-#define W_KEY 'w'
-#define A_KEY 'a'
-#define S_KEY 's'
-#define D_KEY 'd'
 
 struct Shape;
 typedef struct Shape

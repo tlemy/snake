@@ -5,11 +5,11 @@
 
 void initApple(Apple* apl, int minX, int minY, int maxX, int maxY)
 {
-    apl->shp = newShape(0, 0, SQUARE);
-    apl->minX = minX + 2;
-    apl->minY = minY + 1;
-    apl->maxX = maxX - 2;
-    apl->maxY = maxY - 1;
+    apl->shp     = newShape(0, 0, SQUARE);
+    apl->minX    = minX + 2;
+    apl->minY    = minY + 1;
+    apl->maxX    = maxX - 2;
+    apl->maxY    = maxY - 1;
     apl->isEaten = 1;
 }
 
@@ -24,9 +24,9 @@ int spawnApple(Apple *apl)
     int randX = rand() % (apl->maxX - apl->minX + 1) + apl->minX;
     int randY = rand() % (apl->maxY - apl->minY + 1) + apl->minY;
 
-    int minIsEven = apl->minX % 2 == 0;
+    int minIsEven   = apl->minX % 2 == 0;
     int randXIsEven = randX % 2 == 0;
-    int diff = randX + 1 <= apl->maxX ? 1 : -1;
+    int diff        = randX + 1 <= apl->maxX ? 1 : -1;
 
     /* To align the apple*/
     if ((minIsEven && !randXIsEven) || (!minIsEven && randXIsEven))

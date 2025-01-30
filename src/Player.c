@@ -1,3 +1,5 @@
+#include "string.h"
+
 #include "../include/Player.h"
 
 int getYIncPlayer(Player* pl)
@@ -28,11 +30,13 @@ int getXIncPlayer(Player* pl)
 
 void initPlayer(Player* pl, int initLen, int x, int y, int dirct)
 {
-    pl->dirct = dirct;
-    pl->snk = newSnake(x, y, initLen, dirct);
-    pl->isDead = 0;
-    pl->score = 0;
+    pl->dirct   = dirct;
+    pl->snk     = newSnake(x, y, initLen, dirct);
+    pl->isDead  = 0;
+    pl->score   = 0;
     pl->isHuman = 0;
+    pl->numMoves = 0;
+    pl->moveIdx = 0;
 }
 
 void controlPlayer(Player* pl, int c)

@@ -37,9 +37,9 @@ void freeGrid(Limit* lim)
 
 int isBorderCollision(Limit* lim, int x, int y)
 {
-    int leftBorderCollision = x < lim->minX;
-    int topBorderCollision = y < lim->minY;
-    int rightBorderCollision = x >= lim->maxX - 2; // each unit is 2 characters long
+    int leftBorderCollision   = x < lim->minX;
+    int topBorderCollision    = y < lim->minY;
+    int rightBorderCollision  = x >= lim->maxX - 2; // each unit is 2 characters long
     int bottomBorderCollision = y >= lim->maxY - 1; // each unit is one character high
 
     return leftBorderCollision || rightBorderCollision || topBorderCollision || bottomBorderCollision;

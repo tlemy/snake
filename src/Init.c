@@ -45,25 +45,25 @@ void drawBorders(int maxX, int maxY, int pair, int scr)
     // top
     for (int x = strlen(str) + 1; x <= maxX ; x++)
     {
-        mvaddch(0, x, BLOC);
+        mvaddch(0, x, SPACE);
     }
 
     // bottom
     for (int x = 0; x <= maxX; x++)
     {
-        mvaddch(maxY, x, BLOC);
+        mvaddch(maxY, x, SPACE);
     }
 
     // left
     for (int y = 0; y < maxY; y++)
     {
-        mvaddch(y, 0, BLOC);
+        mvaddch(y, 0, SPACE);
     }
 
     // right
     for (int y = 0; y < maxY; y++)
     {
-        mvaddch(y, maxX, BLOC);
+        mvaddch(y, maxX, SPACE);
     }
 
     attroff(COLOR_PAIR(pair));

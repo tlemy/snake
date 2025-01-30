@@ -6,15 +6,8 @@
 #include "../include/Player.h"
 #include "../include/Limit.h"
 
-#define CONTROL_C_KEY 3
-#define LINE_FEED_KEY 10
-#define CARRIAGE_RETURN_KEY 13
-#define SLEEP_TIME 50 // millisecs
-#define N_APPLES 24
-#define N_BOTS 3
-#define N_PLAYERS 1 + N_BOTS
 
-void updateApples(Apple* apls);
+void addPlayersToGrid(Player* pls, Limit* lim);
 
 void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c);
 
@@ -23,6 +16,8 @@ void checkSnakesForCollision(Player* pls, Limit* lim, int i);
 void checkApplesForCollision(Player* ply, Apple* apls);
 
 void drawSnake(Player* ply);
+
+void updateApples(Apple* apls, Limit* lim);
 
 void updateBorders(Player* human, Limit* lim);
 
@@ -38,8 +33,6 @@ void freeApples(Apple* apls);
 
 int isCollidingWithOther(Snake* snk1, Snake* snk2, Limit* lim);
 
-// update grid
-// implement bfs
 
 int main (void)
 {
@@ -54,7 +47,7 @@ int main (void)
     Apple apls[N_APPLES] = {};
     initApples(apls, &lim);
 
-    Player* human = &(pls[0]);
+    Player* human  = &(pls[0]);
     human->isHuman = 1;
 
     while(1)
@@ -80,7 +73,8 @@ int main (void)
 
         erase();
         updateBorders(human, &lim);
-        updateApples(apls);
+        updateApples(apls, &lim);
+        addPlayersToGrid(pls, &lim);
         updatePlayers(pls, &lim, apls, c);
         resetGrid(&lim);
         refresh();
@@ -89,24 +83,38 @@ int main (void)
     }
 }
 
+void addPlayersToGrid(Player* pls, Limit* lim)
+{
+    for (int i = 0; i < N_PLAYERS; i++)
+    {
+        Player* ply = &(pls[i]);
+        Shape* sh   = ply->snk->head;
+
+        for (int j = 0; j < pls->snk->len; j++)
+        {
+            lim->grid[sh->x * sh->y] = IS_SNAKE;
+
+            if (sh->nxt != NULL)
+            {
+                sh = sh->nxt;
+            }
+        }
+    }
+}
+
 void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
 {
     for (int i = 0; i < N_PLAYERS; i++)
     {
         Player* ply = &(pls[i]);
-        Shape head = *(ply->snk->head);
-        int x = head.x;
-        int y = head.y;
-        int len = ply->snk->len;
+        Shape head  = *(ply->snk->head);
+        int x       = head.x;
+        int y       = head.y;
+        int len     = ply->snk->len;
 
         if (ply->isDead)
         {
             continue;
-        }
-
-        if (!ply->isHuman)
-        {
-            c = ' ';
         }
 
         checkSnakesForCollision(pls, lim, i);
@@ -120,10 +128,10 @@ void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
 void checkSnakesForCollision(Player* pls, Limit* lim, int i)
 {
     Player* ply = &(pls[i]);
-    Shape head = *(ply->snk->head);
-    int x = head.x;
-    int y = head.y;
-    int len = ply->snk->len;
+    Shape head  = *(ply->snk->head);
+    int x       = head.x;
+    int y       = head.y;
+    int len     = ply->snk->len;
 
     if (isBorderCollision(lim, x, y)
                 || isCollidingWithPoint(*(ply->snk->head->nxt), x, y, len - 1))
@@ -187,7 +195,7 @@ void drawSnake(Player* ply)
     }
 }
 
-void updateApples(Apple* apls)
+void updateApples(Apple* apls, Limit* lim)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
@@ -199,6 +207,7 @@ void updateApples(Apple* apls)
             apl->isEaten = 0;
         }
         drawShape(apl->shp, 1, RED_RED);
+        lim->grid[apl->shp->x * apl->shp->y] = IS_APPLE;
     }
 }
 
@@ -264,7 +273,7 @@ void freeApples(Apple* apls)
 
 int isCollidingWithOther(Snake* snk1, Snake* snk2, Limit* lim)
 {
-    Shape* head = snk1->head;
+    Shape* head  = snk1->head;
     Shape* other = snk2->head;
 
     for (int i = 1; i < snk2->len; i++)

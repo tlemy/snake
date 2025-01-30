@@ -5,11 +5,12 @@
 
 Snake *newSnake(int initX, int initY, int initLen, int dirct)
 {
-    Shape* head = newShape(initX, initY, SQUARE);
-    Shape* tail = head;
-    int i = 1;
+    Shape* head   = newShape(initX, initY, SQUARE);
+    Shape* tail   = head;
     int xModifier = 0;
     int yModifier = 0;
+
+    int i = 1;
 
     if (dirct == NORTH)
     {
@@ -34,9 +35,9 @@ Snake *newSnake(int initX, int initY, int initLen, int dirct)
     }
 
     Snake *snk = (Snake*) malloc(sizeof(Snake));
-    snk->head = head;
-    snk->tail = tail;
-    snk->len = i;
+    snk->head  = head;
+    snk->tail  = tail;
+    snk->len   = i;
 
     return snk;
 }
@@ -52,6 +53,7 @@ Snake *growSnake(Snake* snk)
 int moveSnake(Snake *snk, int diffX, int diffY)
 {
     int i = 1;
+
     Shape* ptr = snk->tail;
 
     for (i = 1; i < snk->len; i++)

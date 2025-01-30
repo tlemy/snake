@@ -7,22 +7,22 @@
 Shape* newShape(int x, int y, char* str)
 {
     Shape* shp = (Shape*) malloc(sizeof(Shape));
-    shp->idx = 0;
-    shp->x = x;
-    shp->y = y;
-    shp->str = str;
-    shp->prv = NULL;
-    shp->nxt = NULL;
+    shp->idx   = 0;
+    shp->x     = x;
+    shp->y     = y;
+    shp->str   = str;
+    shp->prv   = NULL;
+    shp->nxt   = NULL;
 
     return shp;
 }
 
 Shape* growShape(Shape *shp, Shape *newShape)
 {
-    int idx = shp->idx;
+    int idx    = shp->idx;
     Shape* lst = shp;
 
-    lst->nxt = newShape;
+    lst->nxt      = newShape;
     lst->nxt->prv = lst;
     lst->nxt->idx = idx + 1;
 
@@ -37,7 +37,9 @@ int freeShape(Shape* shp)
     {
         Shape* tmp = shp->nxt;
         free(shp);
+
         shp = tmp;
+
         numShapes += 1;
     }
     shp = NULL;
