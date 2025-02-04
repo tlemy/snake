@@ -1,23 +1,26 @@
-#include <ncurses.h>
-#include <stdio.h>
-
-#include "../include/Init.h"
 #include "../include/Apple.h"
 #include "../include/Player.h"
 #include "../include/Limit.h"
+#include "../include/Params.h"
+
+#include <ncurses.h>
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 
 void addPlayersToGrid(Player* pls, Limit* lim);
 
-void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c);
+void updatePlayers(Player* pls, Limit* lim, Apple** apls, int c);
 
 void checkSnakesForCollision(Player* pls, Limit* lim, int i);
 
-void checkApplesForCollision(Player* ply, Apple* apls);
+void checkApplesForCollision(Player* ply, Apple** apls);
 
 void drawSnake(Player* ply);
 
-void updateApples(Apple* apls, Limit* lim);
+void updateApples(Apple** apls, Limit* lim);
 
 void updateBorders(Player* human, Limit* lim);
 
@@ -25,14 +28,32 @@ void initPlayers(Player* pls, Limit* lim);
 
 void initHuman(Player* pls, Limit* lim);
 
-void initApples(Apple* apls, Limit* lim);
+void initApples(Apple** apls, Limit* lim);
 
 void freeSnakes(Player* pls);
 
-void freeApples(Apple* apls);
+void freeApples(Apple** apls);
 
 int isCollidingWithOther(Snake* snk1, Snake* snk2, Limit* lim);
 
+void drawBorders(int maxX, int maxY, int pair, int scr);
+
+void drawShape(Shape *shp, int len, int pair);
+
+void setup(void)
+{
+    initscr(); // start curses mode
+    raw(); // disable buffering for input, keyboard interrupt passed as characters without generating a signal
+    noecho(); // turn off printing the characters selected by the user
+    curs_set(0); // hide cursor
+    start_color(); // enable color capabilitie
+    nodelay(stdscr, TRUE); // avoid getch blocking
+    init_pair(WHITE_WHITE, COLOR_WHITE, COLOR_WHITE); // border color
+    init_pair(RED_RED, COLOR_RED, COLOR_RED); // apple color
+    init_pair(GREEN_GREEN, COLOR_GREEN, COLOR_GREEN); // snake color
+    init_pair(BLACK_WHITE, COLOR_BLACK, COLOR_WHITE); // score color
+    init_pair(BLUE_BLUE, COLOR_CYAN, COLOR_CYAN); // enemies
+}
 
 int main (void)
 {
@@ -44,7 +65,7 @@ int main (void)
     Player pls[N_PLAYERS] = {};
     initPlayers(pls, &lim);
 
-    Apple apls[N_APPLES] = {};
+    Apple** apls = (Apple**) malloc(N_APPLES * sizeof(Apple*));
     initApples(apls, &lim);
 
     Player* human  = &(pls[0]);
@@ -102,7 +123,7 @@ void addPlayersToGrid(Player* pls, Limit* lim)
     }
 }
 
-void updatePlayers(Player* pls, Limit* lim, Apple* apls, int c)
+void updatePlayers(Player* pls, Limit* lim, Apple** apls, int c)
 {
     for (int i = 0; i < N_PLAYERS; i++)
     {
@@ -160,14 +181,14 @@ void checkSnakesForCollision(Player* pls, Limit* lim, int i)
     }
 }
 
-void checkApplesForCollision(Player* ply, Apple* apls)
+void checkApplesForCollision(Player* ply, Apple** apls)
 {
     int playerX = ply->snk->head->x;
     int playerY = ply->snk->head->y;
 
     for (int i = 0; i < N_APPLES; i++)
     {
-        Apple* apl = &(apls[i]);
+        Apple* apl = apls[i];
         int appleX = apl->shp->x;
         int appleY = apl->shp->y;
 
@@ -195,11 +216,11 @@ void drawSnake(Player* ply)
     }
 }
 
-void updateApples(Apple* apls, Limit* lim)
+void updateApples(Apple** apls, Limit* lim)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
-        Apple* apl = &(apls[i]);
+        Apple* apl = apls[i];
 
         if (apl->isEaten)
         {
@@ -243,12 +264,12 @@ void initHuman(Player* pls, Limit* lim)
     initPlayer(human, lim->maxX / 30, lim->minX, lim->maxY / 2, EAST);
 }
 
-void initApples(Apple* apls, Limit* lim)
+void initApples(Apple** apls, Limit* lim)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
-        Apple* apl = &(apls[i]);
-        initApple(apl, lim->minX, lim->minY - 1, lim->maxX - 1, lim->maxY - 1);
+        Apple* apl = newApple(lim->minX, lim->minY - 1, lim->maxX - 1, lim->maxY - 1);
+        apls[i] = apl;
         spawnApple(apl);
     }
 }
@@ -262,13 +283,14 @@ void freeSnakes(Player* pls)
     }
 }
 
-void freeApples(Apple* apls)
+void freeApples(Apple** apls)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
-        Apple* apl = &(apls[i]);
+        Apple* apl = apls[i];
         freeApple(apl);
     }
+    free(apls);
 }
 
 int isCollidingWithOther(Snake* snk1, Snake* snk2, Limit* lim)
@@ -286,4 +308,56 @@ int isCollidingWithOther(Snake* snk1, Snake* snk2, Limit* lim)
         other = other->nxt;
     }
     return 0;
+}
+
+void drawShape(Shape *shp, int len, int pair)
+{
+    attron(COLOR_PAIR(pair));
+
+    Shape* ptr = shp;
+
+    for (int i = 0; i < len; i++)
+    {
+        mvaddstr(ptr->y, ptr->x, ptr->str);
+        ptr = ptr->nxt;
+    }
+
+    attroff(COLOR_PAIR(pair));
+}
+
+void drawBorders(int maxX, int maxY, int pair, int scr)
+{
+    char str[32];
+    sprintf(str, " [ SCORE: %d ] ", scr);
+    attron(COLOR_PAIR(BLACK_WHITE));
+    mvaddstr(0, 1, str);
+    attroff(COLOR_PAIR(BLACK_WHITE));
+
+    attron(COLOR_PAIR(pair));
+
+    // top
+    for (int x = strlen(str) + 1; x <= maxX ; x++)
+    {
+        mvaddch(0, x, SPACE);
+    }
+
+    // bottom
+    for (int x = 0; x <= maxX; x++)
+    {
+        mvaddch(maxY, x, SPACE);
+    }
+
+    // left
+    for (int y = 0; y < maxY; y++)
+    {
+        mvaddch(y, 0, SPACE);
+    }
+
+    // right
+    for (int y = 0; y < maxY; y++)
+    {
+        mvaddch(y, maxX, SPACE);
+    }
+
+    attroff(COLOR_PAIR(pair));
 }

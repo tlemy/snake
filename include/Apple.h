@@ -12,7 +12,7 @@ typedef struct Apple
     int isEaten;
 } Apple;
 
-void initApple(Apple* apl, int minX, int minY, int maxX, int maxY);
+Apple* newApple(int minX, int minY, int maxX, int maxY);
 
 int spawnApple(Apple *apl);
 

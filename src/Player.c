@@ -1,6 +1,7 @@
 #include "string.h"
 
 #include "../include/Player.h"
+#include "../include/Params.h"
 
 int getYIncPlayer(Player* pl)
 {

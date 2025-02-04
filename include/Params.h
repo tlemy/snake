@@ -1,6 +1,3 @@
-#define X_INC_SNAKE 2
-#define Y_INC_SNAKE 1
-
 #define IS_APPLE 1
 #define IS_SNAKE 2
 
@@ -11,3 +8,11 @@
 #define N_APPLES 24
 #define N_BOTS 3
 #define N_PLAYERS 1 + N_BOTS
+
+#define SPACE ' '
+
+#define WHITE_WHITE 1
+#define RED_RED 2
+#define GREEN_GREEN 3
+#define BLACK_WHITE 4
+#define BLUE_BLUE 5

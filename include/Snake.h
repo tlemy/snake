@@ -7,6 +7,9 @@
 #define EAST 3
 #define WEST 4
 
+#define X_INC_SNAKE 2
+#define Y_INC_SNAKE 1
+
 typedef struct Snake
 {
     Shape* head;

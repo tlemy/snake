@@ -1,8 +1,10 @@
+#include "../include/Shape.h"
+
+#include <ncurses.h>
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-#include "../include/Shape.h"
 
 Shape* newShape(int x, int y, char* str)
 {

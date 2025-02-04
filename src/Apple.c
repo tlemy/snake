@@ -3,14 +3,21 @@
 
 #include "../include/Apple.h"
 
-void initApple(Apple* apl, int minX, int minY, int maxX, int maxY)
+#define SQUARE "  "
+#define X_INC_SNAKE 2
+#define Y_INC_SNAKE 1
+
+Apple* newApple(int minX, int minY, int maxX, int maxY)
 {
+    Apple* apl = (Apple*) malloc(sizeof(Apple));
     apl->shp     = newShape(0, 0, SQUARE);
-    apl->minX    = minX + 2;
-    apl->minY    = minY + 1;
-    apl->maxX    = maxX - 2;
-    apl->maxY    = maxY - 1;
+    apl->minX    = minX + X_INC_SNAKE;
+    apl->minY    = minY + Y_INC_SNAKE;
+    apl->maxX    = maxX - X_INC_SNAKE;
+    apl->maxY    = maxY - Y_INC_SNAKE;
     apl->isEaten = 1;
+
+    return apl;
 }
 
 /*

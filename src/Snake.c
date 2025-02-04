@@ -3,6 +3,8 @@
 
 #include "../include/Snake.h"
 
+#define SQUARE "  "
+
 Snake *newSnake(int initX, int initY, int initLen, int dirct)
 {
     Shape* head   = newShape(initX, initY, SQUARE);

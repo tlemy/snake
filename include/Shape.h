@@ -1,10 +1,5 @@
 #pragma once
 
-#include "../include/Params.h"
-
-#define SPACE ' '
-#define SQUARE "  "
-
 struct Shape;
 typedef struct Shape
 {

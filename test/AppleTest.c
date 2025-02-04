@@ -2,16 +2,15 @@
 #include <CUnit/Basic.h>
 #include "../include/Apple.h"
 
-Apple* apl;
+void testNewApple();
 
-int setup(void);
-int cleanup(void);
-void testNewApple(void);
-void testSpawnApple(void);
-void testSpawnAppleSamePosition(void);
-void testFreeApple(void);
+void testSpawnApple();
 
-int main(void)
+void testSpawnAppleSamePosition();
+
+void testFreeApple();
+
+int main()
 {
     CU_pSuite pSuite = NULL;
 
@@ -20,7 +19,7 @@ int main(void)
         return CU_get_error();
     }
 
-    pSuite = CU_add_suite("AppleTestSuite", setup, cleanup);
+    pSuite = CU_add_suite("AppleTestSuite", NULL, NULL);
 
     if (pSuite == NULL)
     {
@@ -57,50 +56,53 @@ int main(void)
     return CU_get_error();
 }
 
-int setup(void)
-{
-    return 0;
-}
-
-int cleanup(void)
-{
-    return 0;
-}
-
-void testNewApple(void)
+void testNewApple()
 {
     int minX = 0;
     int minY = 0;
-    int maxX = 4;
-    int maxY = 2;
+    int maxX = 40;
+    int maxY = 20;
 
-    apl = newApple(minX, minY, maxX, maxY);
+    Apple* apl = newApple(minX, minY, maxX, maxY);
 
-    CU_ASSERT_EQUAL(apl->minX, minX);
-    CU_ASSERT_EQUAL(apl->minY, minY);
-    CU_ASSERT_EQUAL(apl->maxX, maxX);
-    CU_ASSERT_EQUAL(apl->maxY, maxY);
-    CU_ASSERT_EQUAL(apl->shp->unt->x, 0);
-    CU_ASSERT_EQUAL(apl->shp->unt->y, 0);
+    CU_ASSERT_TRUE(apl->minX > minX);
+    CU_ASSERT_TRUE(apl->minY > minY);
+    CU_ASSERT_TRUE(apl->maxX < maxX);
+    CU_ASSERT_TRUE(apl->maxY < maxY);
+    CU_ASSERT_EQUAL(apl->shp->x, 0);
+    CU_ASSERT_EQUAL(apl->shp->y, 0);
+
+    freeApple(apl);
 }
 
-void testSpawnApple(void)
+void testSpawnApple()
 {
+    Apple* apl = newApple(0, 0, 10, 10);
+
     CU_ASSERT_EQUAL(spawnApple(apl), 0);
-    CU_ASSERT_NOT_EQUAL(apl->shp->unt->x, 0);
-    CU_ASSERT_NOT_EQUAL(apl->shp->unt->y, 0);
+    CU_ASSERT_NOT_EQUAL(apl->shp->x, 0);
+    CU_ASSERT_NOT_EQUAL(apl->shp->y, 0);
+
+    freeApple(apl);
 }
 
-void testSpawnAppleSamePosition(void)
+void testSpawnAppleSamePosition()
 {
-    apl->maxX = 0;
-    apl->maxY = 0;
+    Apple* apl = newApple(0, 0, 10, 10);
+
+    apl->maxX = 2;
+    apl->maxY = 2;
 
     spawnApple(apl);
+
     CU_ASSERT_EQUAL(spawnApple(apl), 1);
+
+    freeApple(apl);
 }
 
 void testFreeApple(void)
 {
+    Apple* apl = newApple(0, 0, 10, 10);
+
     CU_ASSERT_EQUAL(freeApple(apl), 0);
 }

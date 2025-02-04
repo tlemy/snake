@@ -1,10 +1,10 @@
 
 main:
-	clang ./src/Snake.c ./src/Apple.c ./src/Shape.c ./src/Init.c ./src/Limit.c ./src/Player.c ./src/Main.c -o ./build/snake -lncurses
+	clang ./src/Snake.c ./src/Apple.c ./src/Shape.c ./src/Limit.c ./src/Player.c ./src/Main.c -o ./build/snake -lncurses
 	./build/snake
 
 main-debug:
-	clang ./src/Snake.c ./src/Apple.c ./src/Shape.c ./src/Init.c ./src/Limit.c ./src/Player.c ./src/Main.c -o ./build/snake -lncurses -g
+	clang ./src/Snake.c ./src/Apple.c ./src/Shape.c ./src/Limit.c ./src/Player.c ./src/Main.c -o ./build/snake -lncurses -g
 	gdb --tui ./build/snake
 
 snake-test:
