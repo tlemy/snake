@@ -1,21 +1,25 @@
 
 main:
-	clang ./src/Snake.c ./src/Apple.c ./src/Shape.c ./src/Limit.c ./src/Player.c ./src/Main.c -o ./build/snake -lncurses
-	./build/snake
+	clang ./src/modules/Snake.c ./src/modules/Apple.c ./src/modules/Shape.c ./src/modules/Limit.c ./src/modules/Player.c ./src/Main.c -o ./build/main -lncurses -I./include
+	./build/main
 
 main-debug:
-	clang ./src/Snake.c ./src/Apple.c ./src/Shape.c ./src/Limit.c ./src/Player.c ./src/Main.c -o ./build/snake -lncurses -g
-	gdb --tui ./build/snake
+	clang ./src/modules/Snake.c ./src/modules/Apple.c ./src/modules/Shape.c ./src/modules/Limit.c ./src/modules/Player.c ./src/Main.c -o ./build/main -lncurses -I./include -g
+	gdb --tui ./build/main
+
+player-test:
+	clang ./src/modules/Player.c ./src/modules/Snake.c ./src/modules/Shape.c ./test/PlayerTest.c -o ./build/player-test -lcunit -I./include
+	./build/player-test
 
 snake-test:
-	clang ./src/Snake.c ./src/Shape.c ./test/SnakeTest.c -o ./build/snake-test -lcunit
+	clang ./src/modules/Snake.c ./src/modules/Shape.c ./test/SnakeTest.c -o ./build/snake-test -lcunit -I./include
 	./build/snake-test
 
 apple-test:
-	clang ./src/Apple.c ./src/Shape.c ./test/AppleTest.c -o ./build/apple-test -lcunit
+	clang ./src/modules/Apple.c ./src/modules/Shape.c ./test/AppleTest.c -o ./build/apple-test -lcunit -I./include
 	./build/apple-test
 
 shape-test:
-	clang ./src/Shape.c ./test/ShapeTest.c -o ./build/shape-test -lcunit
+	clang ./src/modules/Shape.c ./test/ShapeTest.c -o ./build/shape-test -lcunit -I./include
 	./build/shape-test
 

@@ -1,4 +1,4 @@
-#include "../include/Shape.h"
+#include "Shape.h"
 
 #include <ncurses.h>
 

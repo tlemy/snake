@@ -1,6 +1,7 @@
+#include "Apple.h"
+
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
-#include "../include/Apple.h"
 
 void testNewApple();
 
@@ -19,7 +20,7 @@ int main()
         return CU_get_error();
     }
 
-    pSuite = CU_add_suite("AppleTestSuite", NULL, NULL);
+    pSuite = CU_add_suite("Apple", NULL, NULL);
 
     if (pSuite == NULL)
     {

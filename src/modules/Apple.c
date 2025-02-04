@@ -1,11 +1,10 @@
+#include "Apple.h"
+#include "Incrementation.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../include/Apple.h"
-
 #define SQUARE "  "
-#define X_INC_SNAKE 2
-#define Y_INC_SNAKE 1
 
 Apple* newApple(int minX, int minY, int maxX, int maxY)
 {

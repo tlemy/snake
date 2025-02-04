@@ -1,6 +1,8 @@
+#include "Shape.h"
+
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
-#include "../include/Shape.h"
+
 #include <string.h>
 
 #define STR "HELLO\0"

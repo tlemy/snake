@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../include/Snake.h"
+#include "Snake.h"
+#include "Direction.h"
+#include "Incrementation.h"
 
 #define SQUARE "  "
 
@@ -79,8 +81,8 @@ int freeSnake(Snake *snk)
     if (freeShape(snk->head) == snk->len)
     {
         free(snk);
-        return 1;
+        return 0;
     }
 
-    return 0;
+    return -1;
 }

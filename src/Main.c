@@ -1,7 +1,10 @@
-#include "../include/Apple.h"
-#include "../include/Player.h"
-#include "../include/Limit.h"
-#include "../include/Params.h"
+#include "Apple.h"
+#include "Player.h"
+#include "Limit.h"
+#include "Direction.h"
+#include "Incrementation.h"
+#include "Colors.h"
+#include "Params.h"
 
 #include <ncurses.h>
 
@@ -10,11 +13,11 @@
 #include <stdlib.h>
 
 
-void addPlayersToGrid(Player* pls, Limit* lim);
+void addPlayersToGrid(Player** pls, Limit* lim);
 
-void updatePlayers(Player* pls, Limit* lim, Apple** apls, int c);
+void updatePlayers(Player** pls, Limit* lim, Apple** apls, int c);
 
-void checkSnakesForCollision(Player* pls, Limit* lim, int i);
+void checkSnakesForCollision(Player** pls, Limit* lim, int i);
 
 void checkApplesForCollision(Player* ply, Apple** apls);
 
@@ -24,13 +27,11 @@ void updateApples(Apple** apls, Limit* lim);
 
 void updateBorders(Player* human, Limit* lim);
 
-void initPlayers(Player* pls, Limit* lim);
-
-void initHuman(Player* pls, Limit* lim);
+void initPlayers(Player** pls, Limit* lim);
 
 void initApples(Apple** apls, Limit* lim);
 
-void freeSnakes(Player* pls);
+void freeSnakes(Player** pls);
 
 void freeApples(Apple** apls);
 
@@ -62,14 +63,11 @@ int main (void)
     Limit lim;
     initLimits(&lim);
 
-    Player pls[N_PLAYERS] = {};
+    Player** pls = (Player**) malloc(N_PLAYERS * sizeof(Player*));
     initPlayers(pls, &lim);
 
     Apple** apls = (Apple**) malloc(N_APPLES * sizeof(Apple*));
     initApples(apls, &lim);
-
-    Player* human  = &(pls[0]);
-    human->isHuman = 1;
 
     while(1)
     {
@@ -86,14 +84,15 @@ int main (void)
         }
 
         // monitor for respawn
-        if (human->isDead && (CARRIAGE_RETURN_KEY == c || LINE_FEED_KEY == c))
+        if (pls[0]->isDead && (CARRIAGE_RETURN_KEY == c || LINE_FEED_KEY == c))
         {
-            initHuman(pls, &lim);
-            human->isHuman = 1;
+            free(pls[0]);
+            pls[0] = newPlayer(lim.maxX / 30, lim.minX, lim.maxY / 2, EAST);
+            pls[0]->isHuman = 1;
         }
 
         erase();
-        updateBorders(human, &lim);
+        updateBorders(pls[0], &lim);
         updateApples(apls, &lim);
         addPlayersToGrid(pls, &lim);
         updatePlayers(pls, &lim, apls, c);
@@ -104,14 +103,14 @@ int main (void)
     }
 }
 
-void addPlayersToGrid(Player* pls, Limit* lim)
+void addPlayersToGrid(Player** pls, Limit* lim)
 {
     for (int i = 0; i < N_PLAYERS; i++)
     {
-        Player* ply = &(pls[i]);
+        Player* ply = pls[i];
         Shape* sh   = ply->snk->head;
 
-        for (int j = 0; j < pls->snk->len; j++)
+        for (int j = 0; j < ply->snk->len; j++)
         {
             lim->grid[sh->x * sh->y] = IS_SNAKE;
 
@@ -123,14 +122,14 @@ void addPlayersToGrid(Player* pls, Limit* lim)
     }
 }
 
-void updatePlayers(Player* pls, Limit* lim, Apple** apls, int c)
+void updatePlayers(Player** pls, Limit* lim, Apple** apls, int c)
 {
     for (int i = 0; i < N_PLAYERS; i++)
     {
-        Player* ply = &(pls[i]);
-        Shape head  = *(ply->snk->head);
-        int x       = head.x;
-        int y       = head.y;
+        Player* ply = pls[i];
+        Shape* head = ply->snk->head;
+        int x       = head->x;
+        int y       = head->y;
         int len     = ply->snk->len;
 
         if (ply->isDead)
@@ -146,12 +145,12 @@ void updatePlayers(Player* pls, Limit* lim, Apple** apls, int c)
     }
 }
 
-void checkSnakesForCollision(Player* pls, Limit* lim, int i)
+void checkSnakesForCollision(Player** pls, Limit* lim, int i)
 {
-    Player* ply = &(pls[i]);
-    Shape head  = *(ply->snk->head);
-    int x       = head.x;
-    int y       = head.y;
+    Player* ply = pls[i];
+    Shape* head = ply->snk->head;
+    int x       = head->x;
+    int y       = head->y;
     int len     = ply->snk->len;
 
     if (isBorderCollision(lim, x, y)
@@ -167,7 +166,7 @@ void checkSnakesForCollision(Player* pls, Limit* lim, int i)
             continue;
         }
 
-        Player* other = &(pls[j]);
+        Player* other = pls[j];
 
         if (other->isDead)
         {
@@ -244,41 +243,30 @@ void updateBorders(Player* human, Limit* lim)
     }
 }
 
-void initPlayers(Player* pls, Limit* lim)
+void initPlayers(Player** pls, Limit* lim)
 {
-    initHuman(pls, lim);
+    pls[0] = newPlayer(lim->maxX / 30, lim->minX, lim->maxY / 2, EAST);
+    pls[1] = newPlayer(lim->maxX / 30, lim->maxX - (X_INC_SNAKE * 2), lim->maxY / 2, WEST);
+    pls[2] = newPlayer(lim->maxX / 30, lim->maxX / 2, lim->minY, SOUTH);
+    pls[3] = newPlayer(lim->maxX / 30, lim->maxX / 2, lim->maxY - (Y_INC_SNAKE * 2), NORTH);
 
-    Player* bot1 = &(pls[1]);
-    initPlayer(bot1, lim->maxX / 30, lim->maxX - (X_INC_SNAKE * 2), lim->maxY / 2, WEST);
-
-    Player* bot2 = &(pls[2]);
-    initPlayer(bot2, lim->maxX / 30, lim->maxX / 2, lim->minY, SOUTH);
-
-    Player* bot3 = &(pls[3]);
-    initPlayer(bot3, lim->maxX / 30, lim->maxX / 2, lim->maxY - (Y_INC_SNAKE * 2), NORTH);
-}
-
-void initHuman(Player* pls, Limit* lim)
-{
-    Player* human = &(pls[0]);
-    initPlayer(human, lim->maxX / 30, lim->minX, lim->maxY / 2, EAST);
+    pls[0]->isHuman = 1;
 }
 
 void initApples(Apple** apls, Limit* lim)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
-        Apple* apl = newApple(lim->minX, lim->minY - 1, lim->maxX - 1, lim->maxY - 1);
-        apls[i] = apl;
-        spawnApple(apl);
+        apls[i] = newApple(lim->minX, lim->minY - 1, lim->maxX - 1, lim->maxY - 1);
+        spawnApple(apls[i]);
     }
 }
 
-void freeSnakes(Player* pls)
+void freeSnakes(Player** pls)
 {
     for (int i = 0; i < N_PLAYERS; i++)
     {
-        Player* ply = &(pls[i]);
+        Player* ply = pls[i];
         freeSnake(ply->snk);
     }
 }
@@ -287,8 +275,7 @@ void freeApples(Apple** apls)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
-        Apple* apl = apls[i];
-        freeApple(apl);
+        freeApple(apls[i]);
     }
     free(apls);
 }

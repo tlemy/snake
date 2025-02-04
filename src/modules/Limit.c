@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/Limit.h"
+#include "Limit.h"
 
 void initLimits(Limit* lim)
 {

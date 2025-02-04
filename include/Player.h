@@ -2,11 +2,6 @@
 
 #include "./Snake.h"
 
-#define W_KEY 'w'
-#define A_KEY 'a'
-#define S_KEY 's'
-#define D_KEY 'd'
-
 typedef struct Player
 {
     int dirct;
@@ -19,11 +14,13 @@ typedef struct Player
     Snake* snk;
 } Player;
 
+Player* newPlayer(int initLen, int x, int y, int dirct);
+
 int getYIncPlayer(Player* pl);
 
 int getXIncPlayer(Player* pl);
 
-void initPlayer(Player* pl, int initLen, int x, int y, int dirct);
-
 void controlPlayer(Player* pl, int c);
+
+int freePlayer(Player* ply);
 
