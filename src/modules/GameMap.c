@@ -1,8 +1,11 @@
 #include "GameMap.h"
+#include "Incrementation.h"
+#include "Direction.h"
 
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #define SPACE ' '
 
@@ -24,11 +27,11 @@ GameMap* newGameMap(int minX, int minY, int maxX, int maxY)
         gm->maxX -= 1;
     }
 
-    gm->grid = (int**) malloc(gm->maxX * sizeof(int*));
+    gm->grid = (GridPosition**) malloc(gm->maxX * sizeof(GridPosition*));
 
     for (int i = 0; i < gm->maxX; i++)
     {
-        gm->grid[i] = (int*) malloc(gm->maxY * sizeof(int));
+        gm->grid[i] = (GridPosition*) malloc(gm->maxY * sizeof(GridPosition));
     }
 
     return gm;
@@ -38,7 +41,7 @@ void resetGridGameMap(GameMap* gm)
 {
     for (int i = 0; i < gm->maxX; i++)
     {
-        memset(gm->grid[i], 0, gm->maxY * (sizeof(int)));
+        memset(gm->grid[i], 0, gm->maxY * (sizeof(GridPosition)));
     }
 }
 
@@ -102,22 +105,87 @@ void drawBorders(int maxX, int maxY, int col, int score)
     attroff(COLOR_PAIR(col));
 }
 
-PostionType getAtGameMapPosition(GameMap* gm, int x, int y)
-{
-    return gm->grid[x][y];
-}
-
-int setAtGameMapPosition(GameMap* gm, int x, int y, PostionType type)
+GridPosition* getGridPosition(GameMap* gm, int x, int y)
 {
     if (x >= gm->maxX || x < gm->minX)
     {
-        return -1;
+        return NULL;
     }
     if (y >= gm->maxY || y < gm->minY)
     {
-        return -1;
+        return NULL;
     }
 
-    gm->grid[x][y] = type;
-    return 0;
+    GridPosition* pos = &(gm->grid[x][y]);
+    pos->x = x;
+    pos->y = y;
+
+    return &(gm->grid[x][y]);
+}
+
+GridPosition* setGridPosition(GameMap* gm, int x, int y, int type)
+{
+    GridPosition* pos = getGridPosition(gm, x, y);
+
+    if (!pos)
+    {
+        return pos;
+    }
+
+    pos->type = type;
+
+    return pos;
+}
+
+GridPosition* fetch(GameMap* gm, GridPosition* ptr)
+{
+    for (int i = 1; i < 5; i++) // directions
+    {
+        GridPosition* pos = NULL;
+
+        switch (i)
+        {
+        case NORTH:
+            pos = getGridPosition(gm, ptr->x, ptr->y - Y_INC_SNAKE);
+            break;
+        case SOUTH:
+            pos = getGridPosition(gm, ptr->x, ptr->y + Y_INC_SNAKE);
+            break;
+        case WEST:
+            pos = getGridPosition(gm, ptr->x - X_INC_SNAKE, ptr->y);
+            break;
+        case EAST:
+            pos = getGridPosition(gm, ptr->x + X_INC_SNAKE, ptr->y);
+            break;
+        default:
+            break;
+        }
+
+        GridPosition* result = NULL;
+
+        if (pos == NULL)
+        {
+            return NULL;
+        }
+        else if (pos->type == IS_APPLE)
+        {
+            result = pos;
+        }
+        else if (pos != NULL && pos->type == IS_FREE)
+        {
+            result = fetch(gm, pos);
+        }
+
+        pos->parentX = ptr->x;
+        pos->parentY = ptr->y;
+        pos->dir = i;
+        pos->type = IS_VISITED;
+
+        return result;
+    }
+}
+
+GridPosition* scan(GameMap* gm, int x, int y)
+{
+    return fetch(gm, &(gm->grid[x][y]));
 }

@@ -16,7 +16,7 @@
 #define CARRIAGE_RETURN_KEY 13
 #define SLEEP_TIME 50 // millisecs
 #define N_APPLES 24
-#define N_BOTS 3
+#define N_BOTS 0
 #define N_PLAYERS 1 + N_BOTS
 
 #define SPACE ' '
@@ -108,7 +108,7 @@ void addPlayersToGrid(Player** pls, GameMap* gm)
 
         for (int j = 0; j < ply->snk->len; j++)
         {
-            setAtGameMapPosition(gm, sh->x, sh->y, IS_SNAKE);
+            setGridPosition(gm, sh->x, sh->y, IS_SNAKE);
 
             if (sh->nxt != NULL)
             {
@@ -133,11 +133,20 @@ void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
             continue;
         }
 
+        GridPosition* nextApple = scan(gm, x, y);
+
         checkSnakesForCollision(pls, gm, i);
         controlPlayer(ply, c);
         checkApplesForCollision(ply, apls);
         moveSnake(ply->snk, getXIncPlayer(ply), getYIncPlayer(ply));
         drawPlayer(ply);
+
+        if (nextApple != NULL)
+        {
+            attron(COLOR_PAIR(BLACK_WHITE));
+            mvaddstr(nextApple->y, nextApple->x, "  ");
+            attroff(COLOR_PAIR(BLACK_WHITE));
+        }
     }
 }
 
@@ -208,7 +217,7 @@ void updateApples(Apple** apls, GameMap* gm)
             apl->isEaten = 0;
         }
         drawShape(apl->shp, 1, RED_RED);
-        setAtGameMapPosition(gm, apl->shp->x, apl->shp->y, IS_APPLE);
+        setGridPosition(gm, apl->shp->x, apl->shp->y, IS_APPLE);
     }
 }
 
@@ -227,9 +236,12 @@ void updateBorders(Player* human, GameMap* gm)
 void initPlayers(Player** pls, GameMap* gm)
 {
     pls[0] = newPlayer(gm->maxX / 30, gm->minX, gm->maxY / 2, EAST);
-    pls[1] = newPlayer(gm->maxX / 30, gm->maxX - (X_INC_SNAKE * 2), gm->maxY / 2, WEST);
-    pls[2] = newPlayer(gm->maxX / 30, gm->maxX / 2, gm->minY, SOUTH);
-    pls[3] = newPlayer(gm->maxX / 30, gm->maxX / 2, gm->maxY - (Y_INC_SNAKE * 2), NORTH);
+    // pls[1] = newPlayer(gm->maxX / 30, gm->maxX - (X_INC_SNAKE * 2), gm->maxY / 2, WEST);
+
+    // snakes have to be properly aligned with the game grid for the collision to work
+    int adjuster = gm->minX % 2 != 0 ? 1 : 0;
+    // pls[2] = newPlayer(gm->maxX / 30, gm->maxX / 2 - adjuster, gm->minY, SOUTH);
+    // pls[3] = newPlayer(gm->maxX / 30, gm->maxX / 2 - adjuster, gm->maxY - (Y_INC_SNAKE * 2), NORTH);
 
     pls[0]->isHuman = 1;
 }
