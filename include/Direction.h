@@ -1,9 +1,9 @@
-#define NORTH 1
-#define SOUTH 2
-#define EAST 3
-#define WEST 4
+#pragma once
 
-#define NORTH_KEY 'w'
-#define WEST_KEY 'a'
-#define SOUTH_KEY 's'
-#define EAST_KEY 'd'
+typedef enum Direction
+{
+    NORTH = 1,
+    SOUTH = 2,
+    EAST  = 3,
+    WEST  = 4
+} Direction;

@@ -1,15 +1,17 @@
 #include "Player.h"
 #include "Direction.h"
 #include "Incrementation.h"
+#include "Key.h"
+#include "Color.h"
 
 #include <string.h>
 #include <stdlib.h>
 
-Player* newPlayer(int initLen, int x, int y, int dirct)
+Player* newPlayer(int initLen, int x, int y, Direction dir)
 {
     Player *pl   = (Player*) malloc(sizeof(Player));
-    pl->snk      = newSnake(x, y, initLen, dirct);
-    pl->dirct    = dirct;
+    pl->snk      = newSnake(x, y, initLen, dir);
+    pl->dir    = dir;
     pl->isDead   = 0;
     pl->score    = 0;
     pl->isHuman  = 0;
@@ -21,11 +23,11 @@ Player* newPlayer(int initLen, int x, int y, int dirct)
 
 int getYIncPlayer(Player* pl)
 {
-    if (pl->dirct == NORTH)
+    if (pl->dir == NORTH)
     {
         return -1 * Y_INC_SNAKE;
     }
-    else if (pl->dirct == SOUTH)
+    else if (pl->dir == SOUTH)
     {
         return Y_INC_SNAKE;
     }
@@ -34,34 +36,34 @@ int getYIncPlayer(Player* pl)
 
 int getXIncPlayer(Player* pl)
 {
-    if (pl->dirct == WEST)
+    if (pl->dir == WEST)
     {
         return -1 * X_INC_SNAKE;
     }
-    else if (pl->dirct == EAST)
+    else if (pl->dir == EAST)
     {
         return X_INC_SNAKE;
     }
     return 0;
 }
 
-void controlPlayer(Player* pl, int c)
+void controlPlayer(Player* pl, Key k)
 {
-    if (c == NORTH_KEY && pl->dirct != SOUTH)
+    if (k == NORTH_KEY && pl->dir != SOUTH)
     {
-        pl->dirct = NORTH;
+        pl->dir = NORTH;
     }
-    else if (c == SOUTH_KEY && pl->dirct != NORTH)
+    else if (k == SOUTH_KEY && pl->dir != NORTH)
     {
-        pl->dirct = SOUTH;
+        pl->dir = SOUTH;
     }
-    else if (c == WEST_KEY && pl->dirct != EAST)
+    else if (k == WEST_KEY && pl->dir != EAST)
     {
-        pl->dirct = WEST;
+        pl->dir = WEST;
     }
-    else if (c == EAST_KEY && pl->dirct != WEST)
+    else if (k == EAST_KEY && pl->dir != WEST)
     {
-        pl->dirct = EAST;
+        pl->dir = EAST;
     }
 }
 
@@ -76,4 +78,28 @@ int freePlayer(Player* ply)
     free(ply);
 
     return 0;
+}
+
+void freePlayers(Player** pls, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        Player* ply = pls[i];
+        freeSnake(ply->snk);
+    }
+}
+
+void drawPlayer(Player* ply)
+{
+    if (!ply->isDead)
+    {
+        if (!ply->isHuman)
+        {
+            drawShape(ply->snk->head, ply->snk->len, BLUE_BLUE);
+        }
+        else
+        {
+            drawShape(ply->snk->head, ply->snk->len, GREEN_GREEN);
+        }
+    }
 }

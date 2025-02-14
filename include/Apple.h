@@ -17,3 +17,5 @@ Apple* newApple(int minX, int minY, int maxX, int maxY);
 int spawnApple(Apple *apl);
 
 int freeApple(Apple *apl);
+
+void freeApples(Apple** apls, int n);

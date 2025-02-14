@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "Snake.h"
 #include "Direction.h"
 #include "Incrementation.h"
+
+#include <stdlib.h>
+#include <stdio.h>
 
 #define SQUARE "  "
 

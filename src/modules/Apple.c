@@ -57,3 +57,12 @@ int freeApple(Apple *apl)
     }
     return -1;
 }
+
+void freeApples(Apple** apls, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        freeApple(apls[i]);
+    }
+    free(apls);
+}

@@ -1,7 +1,6 @@
 #include "Shape.h"
 
 #include <ncurses.h>
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -64,4 +63,19 @@ int isCollidingWithPoint(Shape sh, int x, int y, int len)
         }
     }
     return 0;
+}
+
+void drawShape(Shape *shp, int len, int pair)
+{
+    attron(COLOR_PAIR(pair));
+
+    Shape* ptr = shp;
+
+    for (int i = 0; i < len; i++)
+    {
+        mvaddstr(ptr->y, ptr->x, ptr->str);
+        ptr = ptr->nxt;
+    }
+
+    attroff(COLOR_PAIR(pair));
 }
