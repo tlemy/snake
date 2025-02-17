@@ -1,10 +1,10 @@
 
 main:
-	clang ./src/modules/Snake.c ./src/modules/Apple.c ./src/modules/Shape.c ./src/modules/GameMap.c ./src/modules/Player.c ./src/Main.c -o ./build/main -lncurses -I./include
+	clang ./src/modules/Snake.c ./src/modules/Apple.c ./src/modules/Shape.c ./src/modules/GameMap.c ./src/modules/Player.c ./src/modules/Key.c ./src/Main.c -o ./build/main -lncurses -I./include
 	./build/main
 
 main-debug:
-	clang ./src/modules/Snake.c ./src/modules/Apple.c ./src/modules/Shape.c ./src/modules/GameMap.c ./src/modules/Player.c ./src/Main.c -o ./build/main -lncurses -I./include -g
+	clang ./src/modules/Snake.c ./src/modules/Apple.c ./src/modules/Shape.c ./src/modules/GameMap.c ./src/modules/Player.c ./src/modules/Key.c ./src/Main.c -o ./build/main -lncurses -I./include -g
 	gdb --tui ./build/main
 
 player-test:

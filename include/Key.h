@@ -7,3 +7,5 @@ typedef enum Key
     WEST_KEY = 'a',
     EAST_KEY = 'd'
 } Key;
+
+Key translateDirectionToKey(int dir);

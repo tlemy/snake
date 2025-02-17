@@ -1,6 +1,7 @@
 #include "GameMap.h"
 #include "Incrementation.h"
 #include "Direction.h"
+#include "Key.h"
 
 #include <ncurses.h>
 #include <stdlib.h>
@@ -29,33 +30,59 @@ GameMap* newGameMap(int minX, int minY, int maxX, int maxY)
 
     gm->grid = (GridPosition**) malloc(gm->maxX * sizeof(GridPosition*));
 
-    for (int i = 0; i < gm->maxX; i++)
+    for (int x = 0; x < gm->maxX; x++)
     {
-        gm->grid[i] = (GridPosition*) malloc(gm->maxY * sizeof(GridPosition));
+        gm->grid[x] = (GridPosition*) malloc(gm->maxY * sizeof(GridPosition));
+
+        for (int y = 0; y < gm->maxY; y++)
+        {
+            gm->grid[x][y].x = x;
+            gm->grid[x][y].y = y;
+            gm->grid[x][y].path = NULL;
+        }
     }
+
 
     return gm;
 }
 
 void resetGridGameMap(GameMap* gm)
 {
-    for (int i = 0; i < gm->maxX; i++)
+    for (int x = 0; x < gm->maxX; x++)
     {
-        memset(gm->grid[i], 0, gm->maxY * (sizeof(GridPosition)));
+        for (int y = 0; y < gm->maxY; y++)
+        {
+            if (gm->grid[x][y].type == IS_VISITED)
+            {
+                // printf("%d\n", gm->grid[x][y].type);
+                free(gm->grid[x][y].path);
+                // printf("done\n");
+            }
+
+            gm->grid[x][y].dir = 0;
+            gm->grid[x][y].type = IS_FREE;
+        }
     }
 }
 
 int freeGameMap(GameMap* gm)
 {
-    int i = 0;
-    for (i = 0; i < gm->maxX; i++)
+    int x = 0;
+    for (x = 0; x < gm->maxX; x++)
     {
-        free(gm->grid[i]);
+        for (int y = 0; y < gm->maxY; y++)
+        {
+            if (gm->grid[x][y].path != NULL)
+            {
+                free(gm->grid[x][y].path);
+            }
+        }
+        free(gm->grid[x]);
     }
     free(gm->grid);
     free(gm);
 
-    return i;
+    return x;
 }
 
 int isBorderCollision(GameMap* gm, int x, int y)
@@ -117,8 +144,6 @@ GridPosition* getGridPosition(GameMap* gm, int x, int y)
     }
 
     GridPosition* pos = &(gm->grid[x][y]);
-    pos->x = x;
-    pos->y = y;
 
     return &(gm->grid[x][y]);
 }
@@ -137,55 +162,155 @@ GridPosition* setGridPosition(GameMap* gm, int x, int y, int type)
     return pos;
 }
 
-GridPosition* fetch(GameMap* gm, GridPosition* ptr)
+int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit)
 {
-    for (int i = 1; i < 5; i++) // directions
+    int added = 0;
+
+    for (int i = NORTH; i <= WEST; i++)
     {
-        GridPosition* pos = NULL;
+        GridPosition* nearby;
 
         switch (i)
         {
         case NORTH:
-            pos = getGridPosition(gm, ptr->x, ptr->y - Y_INC_SNAKE);
+            nearby = getGridPosition(gm, parent.x, parent.y - Y_INC_SNAKE);
             break;
         case SOUTH:
-            pos = getGridPosition(gm, ptr->x, ptr->y + Y_INC_SNAKE);
-            break;
-        case WEST:
-            pos = getGridPosition(gm, ptr->x - X_INC_SNAKE, ptr->y);
+            nearby = getGridPosition(gm, parent.x, parent.y + Y_INC_SNAKE);
             break;
         case EAST:
-            pos = getGridPosition(gm, ptr->x + X_INC_SNAKE, ptr->y);
+            nearby = getGridPosition(gm, X_INC_SNAKE + parent.x, parent.y);
+            break;
+        case WEST:
+            nearby = getGridPosition(gm, X_INC_SNAKE - parent.x, parent.y);
             break;
         default:
-            break;
+            nearby = NULL;
         }
 
-        GridPosition* result = NULL;
-
-        if (pos == NULL)
+        if (nearby == NULL || (nearby->type != IS_FREE && nearby->type != IS_APPLE))
         {
-            return NULL;
-        }
-        else if (pos->type == IS_APPLE)
-        {
-            result = pos;
-        }
-        else if (pos != NULL && pos->type == IS_FREE)
-        {
-            result = fetch(gm, pos);
+            continue;
         }
 
-        pos->parentX = ptr->x;
-        pos->parentY = ptr->y;
-        pos->dir = i;
-        pos->type = IS_VISITED;
+        int len = strlen(parent.path);
 
-        return result;
+        nearby->dir  = i;
+        nearby->path = (char*) malloc((len + 2) * sizeof(char));
+
+        strcpy(nearby->path, parent.path);
+
+        char c = translateDirectionToKey(nearby->dir);
+
+        if (c != '\0')
+        {
+            nearby->path[len]     = c;
+            nearby->path[len + 1] = '\0';
+        }
+
+        toVisit = addElementToList(toVisit, nearby);
+        added++;
     }
+    return added;
+}
+
+GridPositionList* fetchResults(GameMap* gm, GridPosition pos)
+{
+    GridPositionList* toVisit = newList();
+    GridPositionList* results = newList();
+    GridPositionElement* ptr  = toVisit->head;
+
+    int max = gm->maxX * gm->maxY;
+    int remain  = 1;
+    pos.dir     = 0;
+    pos.path    = (char*) malloc(sizeof(char));
+    pos.path[0] = '\0';
+
+    addElementToList(toVisit, &pos);
+
+    while (remain > 0 && max > 0)
+    {
+        if (ptr->pos->type == IS_APPLE)
+        {
+            ptr->pos->type = IS_VISITED;
+
+            results = addElementToList(results, ptr->pos);
+        }
+        else
+        {
+            ptr->pos->type = IS_VISITED;
+
+            remain += fetchNearby(gm, *ptr->pos, toVisit);
+        }
+
+        remain -= 1;
+
+        ptr = ptr->next;
+        max--;
+    }
+
+    // freeList(toVisit);
+    return results;
 }
 
 GridPosition* scan(GameMap* gm, int x, int y)
 {
-    return fetch(gm, &(gm->grid[x][y]));
+    GridPositionList* results = fetchResults(gm, gm->grid[x][y]);
+
+    return results->head->pos;
+}
+
+GridPositionElement* newListElement()
+{
+    GridPositionElement* element = (GridPositionElement*) malloc(sizeof(GridPositionElement));
+
+    element->pos  = NULL;
+    element->next = NULL;
+
+    return element;
+}
+
+GridPositionList* newList()
+{
+    GridPositionList* list = (GridPositionList*) malloc(sizeof(GridPositionList));
+
+    list->head = newListElement();
+    list->tail = list->head;
+
+    return list;
+}
+
+GridPositionList* addElementToList(GridPositionList* list, GridPosition* pos)
+{
+    if (list->head->pos == NULL)
+    {
+        list->head->pos = pos;
+    }
+    else
+    {
+        GridPositionElement* toAdd = newListElement();
+
+        toAdd->pos = pos;
+
+        list->tail->next = toAdd;
+
+        list->tail = list->tail->next;
+    }
+
+    return list;
+}
+
+void freeList(GridPositionList* list)
+{
+    GridPositionElement* ptr = list->head;
+
+    while (ptr != NULL)
+    {
+        GridPositionElement* tmp = ptr;
+
+        ptr = ptr->next;
+
+        free(tmp);
+    }
+    free(list->head);
 }

@@ -133,7 +133,7 @@ void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
             continue;
         }
 
-        GridPosition* nextApple = scan(gm, x, y);
+        GridPosition* pos = scan(gm, x, y);
 
         checkSnakesForCollision(pls, gm, i);
         controlPlayer(ply, c);
@@ -141,10 +141,10 @@ void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
         moveSnake(ply->snk, getXIncPlayer(ply), getYIncPlayer(ply));
         drawPlayer(ply);
 
-        if (nextApple != NULL)
+        if (pos != NULL)
         {
             attron(COLOR_PAIR(BLACK_WHITE));
-            mvaddstr(nextApple->y, nextApple->x, "  ");
+            mvaddstr(pos->y, pos->x, "  ");
             attroff(COLOR_PAIR(BLACK_WHITE));
         }
     }
