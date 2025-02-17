@@ -123,11 +123,11 @@ void drawBorders(int maxX, int maxY, int col, int score)
 
 GridPosition* getGridPosition(GameMap* gm, int x, int y)
 {
-    if (x > gm->maxX || x < gm->minX)
+    if (x >= gm->maxX || x < gm->minX)
     {
         return NULL;
     }
-    if (y > gm->maxY || y < gm->minY)
+    if (y >= gm->maxY || y < gm->minY)
     {
         return NULL;
     }
@@ -151,7 +151,7 @@ GridPosition* setGridPosition(GameMap* gm, int x, int y, int type)
     return pos;
 }
 
-int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit, int debugX, int debugY)
+int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit)
 {
     int added = 0;
 
@@ -181,7 +181,12 @@ int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit, int
 
         GridPosition* nearby = getGridPosition(gm, x, y);
 
-        if (nearby == NULL || nearby->type == IS_VISITED || nearby->type == IS_SNAKE)
+        if (nearby == NULL)
+        {
+            continue;
+        }
+
+        if (nearby->type == IS_VISITED || nearby->type == IS_SNAKE)
         {
             continue;
         }
@@ -209,13 +214,13 @@ int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit, int
     return added;
 }
 
-GridPositionList* fetchResults(GameMap* gm, GridPosition pos, int debugX, int debugY)
+GridPositionList* fetchResults(GameMap* gm, GridPosition pos)
 {
     GridPositionList* toVisit = newList();
     GridPositionList* results = newList();
     GridPositionElement* ptr  = toVisit->head;
 
-    int maxHops = 20;
+    int maxHops = 10;
     int remain  = 1;
     pos.dir     = 0;
 
@@ -234,7 +239,7 @@ GridPositionList* fetchResults(GameMap* gm, GridPosition pos, int debugX, int de
             mvaddstr(ptr->pos->y, ptr->pos->x, "  ");
             attroff(COLOR_PAIR(4));
 
-            remain += fetchNearby(gm, *ptr->pos, toVisit, debugX, debugY);
+            remain += fetchNearby(gm, *ptr->pos, toVisit);
         }
 
         remain -= 1;
@@ -243,7 +248,7 @@ GridPositionList* fetchResults(GameMap* gm, GridPosition pos, int debugX, int de
 
         toVisit = removeFirstElementFromList(toVisit);
 
-        if (ptr->pos->numHops >= maxHops)
+        if (ptr != NULL && ptr->pos->numHops >= maxHops)
         {
             break;
         }
@@ -253,9 +258,16 @@ GridPositionList* fetchResults(GameMap* gm, GridPosition pos, int debugX, int de
     return results;
 }
 
-GridPosition* scan(GameMap* gm, int x, int y, int debugX, int debugY)
+GridPosition* scan(GameMap* gm, int x, int y)
 {
-    GridPositionList* results = fetchResults(gm, gm->grid[x][y], debugX, debugY);
+    GridPosition* pos = getGridPosition(gm, x, y);
+
+    if (pos == NULL)
+    {
+        return NULL;
+    }
+
+    GridPositionList* results = fetchResults(gm, *pos);
     GridPositionElement* ptr = results->head;
     GridPosition* result;
     int minHops = -1;

@@ -146,7 +146,7 @@ void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
         addPlayersToGrid(pls, gm);
         addApplesToGrid(apls, gm);
 
-        GridPosition* pos = scan(gm, x, y, apls[0]->shp->x, apls[0]->shp->y);
+        GridPosition* pos = scan(gm, x, y);
 
         resetGridGameMap(gm);
 

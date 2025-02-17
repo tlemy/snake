@@ -56,7 +56,7 @@ GridPosition* getGridPosition(GameMap* gm, int x, int y);
 
 GridPosition* setGridPosition(GameMap* gm, int x, int y, int type);
 
-GridPosition* scan(GameMap* gm, int x, int y, int debugX, int debugY);
+GridPosition* scan(GameMap* gm, int x, int y);
 
 GridPositionList* newList();
 
