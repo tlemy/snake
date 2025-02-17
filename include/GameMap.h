@@ -15,9 +15,10 @@ typedef struct GridPosition
 {
     PostionType type;
     Direction dir;
+    int numHops;
+    char path;
     int x;
     int y;
-    char* path;
 } GridPosition;
 
 typedef struct GameMap
@@ -55,7 +56,7 @@ GridPosition* getGridPosition(GameMap* gm, int x, int y);
 
 GridPosition* setGridPosition(GameMap* gm, int x, int y, int type);
 
-GridPosition* scan(GameMap* gm, int x, int y);
+GridPosition* scan(GameMap* gm, int x, int y, int debugX, int debugY);
 
 GridPositionList* newList();
 

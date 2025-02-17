@@ -15,13 +15,14 @@
 #define LINE_FEED_KEY 10
 #define CARRIAGE_RETURN_KEY 13
 #define SLEEP_TIME 50 // millisecs
-#define N_APPLES 24
+#define N_APPLES 1
 #define N_BOTS 0
 #define N_PLAYERS 1 + N_BOTS
 
 #define SPACE ' '
 
 void addPlayersToGrid(Player** pls, GameMap* gm);
+void addApplesToGrid(Apple** apls, GameMap* gm);
 
 void updateApples(Apple** apls, GameMap* gm);
 void updateBorders(Player* human, GameMap* gm);
@@ -90,12 +91,10 @@ int main (void)
         erase();
         updateBorders(pls[0], gm);
         updateApples(apls, gm);
-        addPlayersToGrid(pls, gm);
         updatePlayers(pls, gm, apls, c);
-        resetGridGameMap(gm);
         refresh();
 
-        napms(1000 / 20);
+        napms(1000 / 24);
     }
 }
 
@@ -118,6 +117,17 @@ void addPlayersToGrid(Player** pls, GameMap* gm)
     }
 }
 
+void addApplesToGrid(Apple** apls, GameMap* gm)
+{
+    for (int i = 0; i < N_APPLES; i++)
+    {
+        Apple* apl = apls[i];
+        Shape* sh   = apl->shp;
+
+        setGridPosition(gm, sh->x, sh->y, IS_APPLE);
+    }
+}
+
 void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
 {
     for (int i = 0; i < N_PLAYERS; i++)
@@ -133,7 +143,22 @@ void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
             continue;
         }
 
-        GridPosition* pos = scan(gm, x, y);
+        addPlayersToGrid(pls, gm);
+        addApplesToGrid(apls, gm);
+
+        GridPosition* pos = scan(gm, x, y, apls[0]->shp->x, apls[0]->shp->y);
+
+        // for (int i = 0; i < gm->maxX; i++)
+        // {
+        //     for (int j = 0; j < gm->maxY; j++)
+        //     {
+        //         attron(COLOR_PAIR(BLACK_WHITE));
+        //         mvaddstr(j, i, "  ");
+        //         attroff(COLOR_PAIR(BLACK_WHITE));
+        //     }
+        // }
+
+        resetGridGameMap(gm);
 
         checkSnakesForCollision(pls, gm, i);
         controlPlayer(ply, c);
