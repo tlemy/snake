@@ -157,35 +157,34 @@ int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit, int
 
     for (int i = NORTH; i <= WEST; i++)
     {
-        GridPosition* nearby;
+        int x = parent.x;
+        int y = parent.y;
 
         switch (i)
         {
         case NORTH:
-            nearby = getGridPosition(gm, parent.x, parent.y - Y_INC_SNAKE);
+            y -= Y_INC_SNAKE;
             break;
         case SOUTH:
-            nearby = getGridPosition(gm, parent.x, parent.y + Y_INC_SNAKE);
+            y += Y_INC_SNAKE;
             break;
         case EAST:
-            nearby = getGridPosition(gm, X_INC_SNAKE + parent.x, parent.y);
+            x += X_INC_SNAKE;
             break;
         case WEST:
-            nearby = getGridPosition(gm, X_INC_SNAKE - parent.x, parent.y);
+            x -= X_INC_SNAKE;
             break;
         default:
-            nearby = NULL;
+            x = -1;
+            y = -1;
         }
 
-        if (nearby == NULL || (nearby->type != IS_FREE && nearby->type != IS_APPLE))
+        GridPosition* nearby = getGridPosition(gm, x, y);
+
+        if (nearby == NULL || nearby->type == IS_VISITED || nearby->type == IS_SNAKE)
         {
             continue;
         }
-
-        // if (nearby->x == debugX && nearby->y == debugY)
-        // {
-        //     printf("ok\n");
-        // }
 
         nearby->dir  = i;
 
@@ -200,7 +199,10 @@ int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit, int
 
         nearby->numHops = parent.numHops + 1;
 
-        toVisit = addElementToList(toVisit, nearby);
+        if (nearby->type == IS_FREE || nearby->type == IS_APPLE)
+        {
+            toVisit = addElementToList(toVisit, nearby);
+        }
 
         added++;
     }
@@ -213,13 +215,13 @@ GridPositionList* fetchResults(GameMap* gm, GridPosition pos, int debugX, int de
     GridPositionList* results = newList();
     GridPositionElement* ptr  = toVisit->head;
 
-    int max = gm->maxX * gm->maxY;
+    int maxHops = 20;
     int remain  = 1;
     pos.dir     = 0;
 
     addElementToList(toVisit, &pos);
 
-    while (remain > 0 && max > 0)
+    while (remain > 0)
     {
         if (ptr->pos->type == IS_APPLE)
         {
@@ -228,6 +230,9 @@ GridPositionList* fetchResults(GameMap* gm, GridPosition pos, int debugX, int de
         else
         {
             ptr->pos->type = IS_VISITED;
+            attron(COLOR_PAIR(4));
+            mvaddstr(ptr->pos->y, ptr->pos->x, "  ");
+            attroff(COLOR_PAIR(4));
 
             remain += fetchNearby(gm, *ptr->pos, toVisit, debugX, debugY);
         }
@@ -235,7 +240,13 @@ GridPositionList* fetchResults(GameMap* gm, GridPosition pos, int debugX, int de
         remain -= 1;
 
         ptr = ptr->next;
-        max--;
+
+        toVisit = removeFirstElementFromList(toVisit);
+
+        if (ptr->pos->numHops >= maxHops)
+        {
+            break;
+        }
     }
 
     freeList(toVisit);
@@ -304,6 +315,21 @@ GridPositionList* addElementToList(GridPositionList* list, GridPosition* pos)
         list->tail = list->tail->next;
     }
 
+    return list;
+}
+
+GridPositionList* removeFirstElementFromList(GridPositionList* list)
+{
+    if (list->head->next)
+    {
+        GridPositionElement* toFree = list->head;
+        list->head = list->head->next;
+
+        if (toFree)
+        {
+            free(toFree);
+        }
+    }
     return list;
 }
 

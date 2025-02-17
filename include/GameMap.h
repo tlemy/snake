@@ -64,3 +64,4 @@ GridPositionList* addElementToList(GridPositionList* list, GridPosition* pos);
 
 void freeList(GridPositionList* list);
 
+GridPositionList* removeFirstElementFromList(GridPositionList* list);

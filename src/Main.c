@@ -94,7 +94,7 @@ int main (void)
         updatePlayers(pls, gm, apls, c);
         refresh();
 
-        napms(1000 / 24);
+        napms(1000 / 30);
     }
 }
 
@@ -148,16 +148,6 @@ void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
 
         GridPosition* pos = scan(gm, x, y, apls[0]->shp->x, apls[0]->shp->y);
 
-        // for (int i = 0; i < gm->maxX; i++)
-        // {
-        //     for (int j = 0; j < gm->maxY; j++)
-        //     {
-        //         attron(COLOR_PAIR(BLACK_WHITE));
-        //         mvaddstr(j, i, "  ");
-        //         attroff(COLOR_PAIR(BLACK_WHITE));
-        //     }
-        // }
-
         resetGridGameMap(gm);
 
         checkSnakesForCollision(pls, gm, i);
@@ -168,9 +158,9 @@ void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
 
         if (pos != NULL)
         {
-            attron(COLOR_PAIR(BLACK_WHITE));
+            attron(COLOR_PAIR(BLUE_BLUE));
             mvaddstr(pos->y, pos->x, "  ");
-            attroff(COLOR_PAIR(BLACK_WHITE));
+            attroff(COLOR_PAIR(BLUE_BLUE));
         }
     }
 }
