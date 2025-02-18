@@ -15,7 +15,7 @@
 #define LINE_FEED_KEY 10
 #define CARRIAGE_RETURN_KEY 13
 #define SLEEP_TIME 50 // millisecs
-#define N_APPLES 1
+#define N_APPLES 50
 #define N_BOTS 0
 #define N_PLAYERS 1 + N_BOTS
 
@@ -94,7 +94,7 @@ int main (void)
         updatePlayers(pls, gm, apls, c);
         refresh();
 
-        napms(1000 / 30);
+        napms(1000 / 20);
     }
 }
 
