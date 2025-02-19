@@ -14,7 +14,6 @@ typedef enum PostionType
 typedef struct GridPosition
 {
     PostionType type;
-    Direction dir;
     int numHops;
     char path;
     int x;

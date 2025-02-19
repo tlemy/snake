@@ -54,7 +54,6 @@ void resetGridGameMap(GameMap* gm)
     {
         for (int y = 0; y < gm->maxY; y++)
         {
-            gm->grid[x][y].dir = 0;
             gm->grid[x][y].path = 0;
             gm->grid[x][y].numHops = 0;
             gm->grid[x][y].type = IS_FREE;
@@ -192,11 +191,9 @@ int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit)
             continue;
         }
 
-        nearby->dir  = i;
-
         if (parent.path == 0)
         {
-            nearby->path = translateDirectionToKey(nearby->dir);
+            nearby->path = translateDirectionToKey(i);
         }
         else
         {
@@ -223,7 +220,6 @@ GridPositionList* fetchResults(GameMap* gm, GridPosition pos)
 
     int maxHops = 10;
     int remain  = 1;
-    pos.dir     = 0;
 
     addElementToList(toVisit, &pos);
 
