@@ -59,12 +59,14 @@ int main (void)
     int maxX = getmaxx(stdscr);
     int maxY = getmaxy(stdscr);
 
+    GridPosition grid[maxX][maxY];
+
     GameMap* gm = newGameMap(1, 1, maxX, maxY);
 
-    Player** pls = (Player**) malloc(N_PLAYERS * sizeof(Player*));
+    Player* pls[N_PLAYERS];
     initPlayers(pls, gm);
 
-    Apple** apls = (Apple**) malloc(N_APPLES * sizeof(Apple*));
+    Apple* apls[N_APPLES];
     initApples(apls, gm);
 
     while(1)
@@ -76,7 +78,6 @@ int main (void)
         {
             freePlayers(pls, N_PLAYERS);
             freeApples(apls, N_APPLES);
-            freeGameMap(gm);
             endwin(); // free resources and disable curses mode
             return 0;
         }
@@ -99,7 +100,7 @@ int main (void)
     }
 }
 
-void addPlayersToGrid(Player** pls, GameMap* gm)
+void addPlayersToGrid(Player* pls[N_PLAYERS], GameMap* gm)
 {
     for (int i = 0; i < N_PLAYERS; i++)
     {
@@ -118,7 +119,7 @@ void addPlayersToGrid(Player** pls, GameMap* gm)
     }
 }
 
-void addApplesToGrid(Apple** apls, GameMap* gm)
+void addApplesToGrid(Apple* apls[N_PLAYERS], GameMap* gm)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
@@ -129,7 +130,7 @@ void addApplesToGrid(Apple** apls, GameMap* gm)
     }
 }
 
-void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
+void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple** apls, int c)
 {
     for (int i = 0; i < N_PLAYERS; i++)
     {
@@ -155,7 +156,6 @@ void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
         controlPlayer(ply, c);
         checkApplesForCollision(ply, apls);
         moveSnake(ply->snk, getXIncPlayer(ply), getYIncPlayer(ply));
-        drawPlayer(ply);
 
         if (pos != NULL)
         {
@@ -163,10 +163,12 @@ void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
             mvaddstr(pos->y, pos->x, "  ");
             attroff(COLOR_PAIR(BLUE_BLUE));
         }
+
+        drawPlayer(ply);
     }
 }
 
-void checkSnakesForCollision(Player** pls, GameMap* gm, int i)
+void checkSnakesForCollision(Player* pls[N_PLAYERS], GameMap* gm, int i)
 {
     Player* ply = pls[i];
     Shape* head = ply->snk->head;
@@ -201,7 +203,7 @@ void checkSnakesForCollision(Player** pls, GameMap* gm, int i)
     }
 }
 
-void checkApplesForCollision(Player* ply, Apple** apls)
+void checkApplesForCollision(Player* ply, Apple* apls[N_APPLES])
 {
     int playerX = ply->snk->head->x;
     int playerY = ply->snk->head->y;
@@ -221,7 +223,7 @@ void checkApplesForCollision(Player* ply, Apple** apls)
     }
 }
 
-void updateApples(Apple** apls, GameMap* gm)
+void updateApples(Apple* apls[N_APPLES], GameMap* gm)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
@@ -249,7 +251,7 @@ void updateBorders(Player* human, GameMap* gm)
     }
 }
 
-void initPlayers(Player** pls, GameMap* gm)
+void initPlayers(Player* pls[N_PLAYERS], GameMap* gm)
 {
     pls[0] = newPlayer(gm->maxX / 30, gm->minX, gm->maxY / 2, EAST);
     // pls[1] = newPlayer(gm->maxX / 30, gm->maxX - (X_INC_SNAKE * 2), gm->maxY / 2, WEST);
@@ -262,7 +264,7 @@ void initPlayers(Player** pls, GameMap* gm)
     pls[0]->isHuman = 1;
 }
 
-void initApples(Apple** apls, GameMap* gm)
+void initApples(Apple* apls[N_APPLES], GameMap* gm)
 {
     for (int i = 0; i < N_APPLES; i++)
     {

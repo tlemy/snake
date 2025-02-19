@@ -64,5 +64,4 @@ void freeApples(Apple** apls, int n)
     {
         freeApple(apls[i]);
     }
-    free(apls);
 }
