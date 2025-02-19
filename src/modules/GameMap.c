@@ -2,6 +2,7 @@
 #include "Incrementation.h"
 #include "Direction.h"
 #include "Key.h"
+#include "Color.h"
 
 #include <ncurses.h>
 #include <stdlib.h>
@@ -235,9 +236,9 @@ GridPositionList* fetchResults(GameMap* gm, GridPosition pos)
         else
         {
             ptr->pos->type = IS_VISITED;
-            attron(COLOR_PAIR(4));
+            attron(COLOR_PAIR(BLACK_WHITE));
             mvaddstr(ptr->pos->y, ptr->pos->x, "  ");
-            attroff(COLOR_PAIR(4));
+            attroff(COLOR_PAIR(BLACK_WHITE));
 
             remain += fetchNearby(gm, *ptr->pos, toVisit);
         }

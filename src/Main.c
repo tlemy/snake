@@ -49,6 +49,7 @@ void setup(void)
     init_pair(GREEN_GREEN, COLOR_GREEN, COLOR_GREEN); // snake color
     init_pair(BLACK_WHITE, COLOR_BLACK, COLOR_WHITE); // score color
     init_pair(BLUE_BLUE, COLOR_CYAN, COLOR_CYAN); // enemies
+    init_pair(YELLOW_YELLOW, COLOR_YELLOW, COLOR_YELLOW);
 }
 
 int main (void)
