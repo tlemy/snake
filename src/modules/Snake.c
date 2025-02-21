@@ -38,7 +38,14 @@ Snake *newSnake(int initX, int initY, int initLen, int dirct)
         tail = growShape(tail, newShape(tail->x - xModifier, tail->y - yModifier, SQUARE));
     }
 
-    Snake *snk = (Snake*) malloc(sizeof(Snake));
+    Snake *snk = calloc(1, sizeof(Snake));
+
+    if (!snk)
+    {
+        perror("newSnake");
+        exit(-1);
+    }
+
     snk->head  = head;
     snk->tail  = tail;
     snk->len   = i;

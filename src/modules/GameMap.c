@@ -13,7 +13,13 @@
 
 GameMap* newGameMap(int minX, int minY, int maxX, int maxY)
 {
-    GameMap* gm = (GameMap*) malloc(sizeof(GameMap));
+    GameMap* gm = calloc(1, sizeof(GameMap));
+
+    if (!gm)
+    {
+        perror("newGameMap");
+        exit(-1);
+    }
 
     gm->minX = 1;
     gm->minY = 2;
@@ -29,21 +35,26 @@ GameMap* newGameMap(int minX, int minY, int maxX, int maxY)
         gm->maxX -= 1;
     }
 
-    gm->grid = (GridPosition**) malloc(gm->maxX * sizeof(GridPosition*));
+    gm->grid = calloc(gm->maxX * gm->maxY, sizeof(GridPosition**));
+
+    if (!gm->grid)
+    {
+        perror("newGameMap");
+        exit(-1);
+    }
 
     for (int x = 0; x < gm->maxX; x++)
     {
-        gm->grid[x] = (GridPosition*) malloc(gm->maxY * sizeof(GridPosition));
-
         for (int y = 0; y < gm->maxY; y++)
         {
-            gm->grid[x][y].x = x;
-            gm->grid[x][y].y = y;
-            gm->grid[x][y].path = 0;
-            gm->grid[x][y].numHops = 0;
+            gm->grid[x * (gm->maxY) + y]         = calloc(1, sizeof(GridPosition));
+            gm->grid[x * (gm->maxY) + y]->x       = x;
+            gm->grid[x * (gm->maxY) + y]->y       = y;
+            gm->grid[x * (gm->maxY) + y]->path    = 0;
+            gm->grid[x * (gm->maxY) + y]->numHops = 0;
+            gm->grid[x * (gm->maxY) + y]->type    = IS_FREE;
         }
     }
-
 
     return gm;
 }
@@ -54,24 +65,17 @@ void resetGridGameMap(GameMap* gm)
     {
         for (int y = 0; y < gm->maxY; y++)
         {
-            gm->grid[x][y].path = 0;
-            gm->grid[x][y].numHops = 0;
-            gm->grid[x][y].type = IS_FREE;
+            gm->grid[x * (gm->maxY) + y]->path    = 0;
+            gm->grid[x * (gm->maxY) + y]->numHops = 0;
+            gm->grid[x * (gm->maxY) + y]->type    = IS_FREE;
         }
     }
 }
 
-int freeGameMap(GameMap* gm)
+void freeGameMap(GameMap* gm)
 {
-    int x = 0;
-    for (x = 0; x < gm->maxX; x++)
-    {
-        free(gm->grid[x]);
-    }
     free(gm->grid);
     free(gm);
-
-    return x;
 }
 
 int isBorderCollision(GameMap* gm, int x, int y)
@@ -132,23 +136,17 @@ GridPosition* getGridPosition(GameMap* gm, int x, int y)
         return NULL;
     }
 
-    GridPosition* pos = &(gm->grid[x][y]);
-
-    return &(gm->grid[x][y]);
+    return gm->grid[x * (gm->maxY) + y];
 }
 
-GridPosition* setGridPosition(GameMap* gm, int x, int y, int type)
+void setGridPosition(GameMap* gm, int x, int y, int type)
 {
     GridPosition* pos = getGridPosition(gm, x, y);
 
-    if (!pos)
+    if (pos)
     {
-        return pos;
+         pos->type = type;
     }
-
-    pos->type = type;
-
-    return pos;
 }
 
 int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit)

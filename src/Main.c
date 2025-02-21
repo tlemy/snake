@@ -21,20 +21,23 @@
 
 #define SPACE ' '
 
-void addPlayersToGrid(Player** pls, GameMap* gm);
-void addApplesToGrid(Apple** apls, GameMap* gm);
+void addPlayersToGrid(Player* pls[N_PLAYERS], GameMap* gm);
+void addApplesToGrid(Apple* apls[N_APPLES], GameMap* gm);
 
-void updateApples(Apple** apls, GameMap* gm);
+void updateApples(Apple* apls[N_APPLES], GameMap* gm);
 void updateBorders(Player* human, GameMap* gm);
-void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c);
+void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], int c);
 
-void checkSnakesForCollision(Player** pls, GameMap* gm, int i);
-void checkApplesForCollision(Player* ply, Apple** apls);
+void checkSnakesForCollision(Player* pls[N_PLAYERS], GameMap* gm, int i);
+void checkApplesForCollision(Player* ply, Apple* apls[N_APPLES]);
 
-void initPlayers(Player** pls, GameMap* gm);
-void initApples(Apple** apls, GameMap* gm);
+void initPlayers(Player* pls[N_PLAYERS], GameMap* gm);
+void initApples(Apple* apls[N_APPLES] , GameMap* gm);
 
 int isCollidingWithOther(Snake* snk1, Snake* snk2);
+
+void freeApples(Apple* apls[N_APPLES]);
+void freePlayers(Player* pls[N_PLAYERS]);
 
 void setup(void)
 {
@@ -61,10 +64,10 @@ int main (void)
 
     GameMap* gm = newGameMap(1, 1, maxX, maxY);
 
-    Player** pls = (Player**) malloc(N_PLAYERS * sizeof(Player*));
+    Player* pls[N_PLAYERS];
     initPlayers(pls, gm);
 
-    Apple** apls = (Apple**) malloc(N_APPLES * sizeof(Apple*));
+    Apple* apls[N_APPLES];
     initApples(apls, gm);
 
     while(1)
@@ -74,8 +77,8 @@ int main (void)
         // monitor for exit
         if (CONTROL_C_KEY == c)
         {
-            freePlayers(pls, N_PLAYERS);
-            freeApples(apls, N_APPLES);
+            freePlayers(pls);
+            freeApples(apls);
             freeGameMap(gm);
             endwin(); // free resources and disable curses mode
             return 0;
@@ -99,7 +102,7 @@ int main (void)
     }
 }
 
-void addPlayersToGrid(Player** pls, GameMap* gm)
+void addPlayersToGrid(Player* pls[N_PLAYERS], GameMap* gm)
 {
     for (int i = 0; i < N_PLAYERS; i++)
     {
@@ -118,7 +121,7 @@ void addPlayersToGrid(Player** pls, GameMap* gm)
     }
 }
 
-void addApplesToGrid(Apple** apls, GameMap* gm)
+void addApplesToGrid(Apple* apls[N_APPLES], GameMap* gm)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
@@ -129,7 +132,7 @@ void addApplesToGrid(Apple** apls, GameMap* gm)
     }
 }
 
-void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
+void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], int c)
 {
     for (int i = 0; i < N_PLAYERS; i++)
     {
@@ -166,7 +169,7 @@ void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c)
     }
 }
 
-void checkSnakesForCollision(Player** pls, GameMap* gm, int i)
+void checkSnakesForCollision(Player* pls[N_PLAYERS], GameMap* gm, int i)
 {
     Player* ply = pls[i];
     Shape* head = ply->snk->head;
@@ -201,7 +204,7 @@ void checkSnakesForCollision(Player** pls, GameMap* gm, int i)
     }
 }
 
-void checkApplesForCollision(Player* ply, Apple** apls)
+void checkApplesForCollision(Player* ply, Apple* apls[N_APPLES])
 {
     int playerX = ply->snk->head->x;
     int playerY = ply->snk->head->y;
@@ -221,7 +224,7 @@ void checkApplesForCollision(Player* ply, Apple** apls)
     }
 }
 
-void updateApples(Apple** apls, GameMap* gm)
+void updateApples(Apple* apls[N_APPLES], GameMap* gm)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
@@ -249,7 +252,7 @@ void updateBorders(Player* human, GameMap* gm)
     }
 }
 
-void initPlayers(Player** pls, GameMap* gm)
+void initPlayers(Player* pls[N_PLAYERS], GameMap* gm)
 {
     pls[0] = newPlayer(gm->maxX / 30, gm->minX, gm->maxY / 2, EAST);
     // pls[1] = newPlayer(gm->maxX / 30, gm->maxX - (X_INC_SNAKE * 2), gm->maxY / 2, WEST);
@@ -262,7 +265,7 @@ void initPlayers(Player** pls, GameMap* gm)
     pls[0]->isHuman = 1;
 }
 
-void initApples(Apple** apls, GameMap* gm)
+void initApples(Apple* apls[N_APPLES], GameMap* gm)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
@@ -286,4 +289,21 @@ int isCollidingWithOther(Snake* snk1, Snake* snk2)
         other = other->nxt;
     }
     return 0;
+}
+
+void freeApples(Apple* apls[N_APPLES])
+{
+    for (int i = 0; i < N_APPLES; i++)
+    {
+        freeApple(apls[i]);
+    }
+}
+
+void freePlayers(Player* pls[N_PLAYERS])
+{
+    for (int i = 0; i < N_PLAYERS; i++)
+    {
+        Player* ply = pls[i];
+        freeSnake(ply->snk);
+    }
 }

@@ -26,6 +26,4 @@ void controlPlayer(Player* pl, Key k);
 
 int freePlayer(Player* ply);
 
-void freePlayers(Player** pls, int n);
-
 void drawPlayer(Player* ply);

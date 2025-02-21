@@ -2,6 +2,8 @@
 
 #include "Direction.h"
 
+#define MAX_HOPS 25
+
 typedef enum PostionType
 {
     IS_FREE = 0,
@@ -26,7 +28,7 @@ typedef struct GameMap
     int minY;
     int maxX;
     int maxY;
-    struct GridPosition** grid;
+    GridPosition** grid;
 } GameMap;
 
 typedef struct GridPositionElement
@@ -45,7 +47,7 @@ GameMap* newGameMap(int minX, int minY, int maxX, int maxY);
 
 void resetGridGameMap(GameMap* gm);
 
-int freeGameMap(GameMap* gm);
+void freeGameMap(GameMap* gm);
 
 int isBorderCollision(GameMap* gm, int x, int y);
 
@@ -53,7 +55,7 @@ void drawBorders(int maxX, int maxY, int pair, int score);
 
 GridPosition* getGridPosition(GameMap* gm, int x, int y);
 
-GridPosition* setGridPosition(GameMap* gm, int x, int y, int type);
+void setGridPosition(GameMap* gm, int x, int y, int type);
 
 GridPosition* scan(GameMap* gm, int x, int y);
 
