@@ -13,7 +13,13 @@
 
 GameMap* newGameMap(int minX, int minY, int maxX, int maxY)
 {
-    GameMap* gm = (GameMap*) malloc(sizeof(GameMap));
+    GameMap* gm = calloc(1, sizeof(GameMap));
+
+    if (!gm)
+    {
+        perror("newGameMap");
+        exit(-1);
+    }
 
     gm->minX = 1;
     gm->minY = 2;
@@ -29,18 +35,33 @@ GameMap* newGameMap(int minX, int minY, int maxX, int maxY)
         gm->maxX -= 1;
     }
 
-    gm->grid = (GridPosition**) malloc(gm->maxX * sizeof(GridPosition*));
+    gm->grid = calloc(gm->maxX * gm->maxY, sizeof(GridPosition*));
+
+    if (!gm->grid)
+    {
+        perror("newGameMap");
+        exit(-1);
+    }
 
     for (int x = 0; x < gm->maxX; x++)
     {
-        gm->grid[x] = (GridPosition*) malloc(gm->maxY * sizeof(GridPosition));
-
         for (int y = 0; y < gm->maxY; y++)
         {
-            gm->grid[x][y].x = x;
-            gm->grid[x][y].y = y;
-            gm->grid[x][y].path = 0;
-            gm->grid[x][y].numHops = 0;
+            GridPosition *pos = calloc(1, sizeof(GridPosition));
+
+            if (!pos)
+            {
+                perror("newGameMap");
+                exit(-1);
+            }
+
+            pos->x       = x;
+            pos->y       = y;
+            pos->path    = 0;
+            pos->numHops = 0;
+            pos->type    = IS_FREE;
+
+            gm->grid[x * (gm->maxY) + y] = pos;
         }
     }
 
@@ -54,24 +75,34 @@ void resetGridGameMap(GameMap* gm)
     {
         for (int y = 0; y < gm->maxY; y++)
         {
-            gm->grid[x][y].path = 0;
-            gm->grid[x][y].numHops = 0;
-            gm->grid[x][y].type = IS_FREE;
+            GridPosition *pos = gm->grid[x * (gm->maxY) + y];
+
+            if (!pos)
+            {
+                perror("resetGridGameMap");
+                exit(-1);
+            }
+
+            pos->path    = 0;
+            pos->numHops = 0;
+            pos->type    = IS_FREE;
         }
     }
+    gm->idxResults = 0;
+    gm->idxToVisit = 0;
 }
 
-int freeGameMap(GameMap* gm)
+void freeGameMap(GameMap* gm)
 {
-    int x = 0;
-    for (x = 0; x < gm->maxX; x++)
+    for (int x = 0; x < gm->maxX; x++)
     {
-        free(gm->grid[x]);
+        for (int y = 0; y < gm->maxY; y++)
+        {
+            free(gm->grid[x * (gm->maxY) + y]);
+        }
     }
     free(gm->grid);
     free(gm);
-
-    return x;
 }
 
 int isBorderCollision(GameMap* gm, int x, int y)
@@ -132,33 +163,27 @@ GridPosition* getGridPosition(GameMap* gm, int x, int y)
         return NULL;
     }
 
-    GridPosition* pos = &(gm->grid[x][y]);
-
-    return &(gm->grid[x][y]);
+    return gm->grid[x * (gm->maxY) + y];
 }
 
-GridPosition* setGridPosition(GameMap* gm, int x, int y, int type)
+void setGridPosition(GameMap* gm, int x, int y, int type)
 {
     GridPosition* pos = getGridPosition(gm, x, y);
 
-    if (!pos)
+    if (pos)
     {
-        return pos;
+         pos->type = type;
     }
-
-    pos->type = type;
-
-    return pos;
 }
 
-int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit)
+int fetchNearby(GameMap* gm, GridPosition* parent)
 {
     int added = 0;
 
     for (int i = NORTH; i <= WEST; i++)
     {
-        int x = parent.x;
-        int y = parent.y;
+        int x = parent->x;
+        int y = parent->y;
 
         switch (i)
         {
@@ -181,110 +206,103 @@ int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit)
 
         GridPosition* nearby = getGridPosition(gm, x, y);
 
-        if (nearby == NULL)
+        if (nearby && (nearby->type == IS_FREE || nearby->type == IS_APPLE))
         {
-            continue;
-        }
+            nearby->numHops = parent->numHops + 1;
 
-        if (nearby->type == IS_VISITED || nearby->type == IS_SNAKE)
-        {
-            continue;
-        }
+            if (parent->path == 0)
+            {
+                nearby->path = translateDirectionToKey(i);
+            }
+            else
+            {
+                nearby->path = parent->path;
+            }
 
-        if (parent.path == 0)
-        {
-            nearby->path = translateDirectionToKey(i);
+            if (EXIT_FAILURE == addToVisit(gm, nearby))
+            {
+                // perror("fetchNeaby");
+                // exit(EXIT_FAILURE);
+            }
+            else
+            {
+                added += 1;
+            }
         }
-        else
-        {
-            nearby->path = parent.path;
-        }
-
-        nearby->numHops = parent.numHops + 1;
-
-        if (nearby->type == IS_FREE || nearby->type == IS_APPLE)
-        {
-            toVisit = addElementToList(toVisit, nearby);
-        }
-
-        added++;
     }
     return added;
 }
 
-GridPositionList* fetchResults(GameMap* gm, GridPosition pos)
+void fetchResults(GameMap* gm, GridPosition* initPos)
 {
-    GridPositionList* toVisit = newList();
-    GridPositionList* results = newList();
-    GridPositionElement* ptr  = toVisit->head;
-
     int maxHops = 10;
     int remain  = 1;
 
-    addElementToList(toVisit, &pos);
+    addToVisit(gm, initPos);
+
+    int i = 0;
 
     while (remain > 0)
     {
-        if (ptr->pos->type == IS_APPLE)
+        Coordinate coor   = gm->toVisit[i];
+        GridPosition* pos = getGridPosition(gm, coor.x, coor.y);
+
+        if (!pos)
         {
-            results = addElementToList(results, ptr->pos);
+            continue;
+        }
+
+        if (pos->type == IS_APPLE)
+        {
+            addResults(gm, pos);
         }
         else
         {
-            ptr->pos->type = IS_VISITED;
+            pos->type = IS_VISITED;
             attron(COLOR_PAIR(BLACK_WHITE));
-            mvaddstr(ptr->pos->y, ptr->pos->x, "  ");
+            mvaddstr(pos->y, pos->x, "  ");
             attroff(COLOR_PAIR(BLACK_WHITE));
 
-            remain += fetchNearby(gm, *ptr->pos, toVisit);
+            remain += fetchNearby(gm, pos);
         }
 
         remain -= 1;
 
-        ptr = ptr->next;
-
-        toVisit = removeFirstElementFromList(toVisit);
-
-        if (ptr != NULL && ptr->pos->numHops >= maxHops)
+        if (pos->numHops >= maxHops)
         {
             break;
         }
-    }
 
-    freeList(toVisit);
-    return results;
+        i++;
+    }
 }
 
 GridPosition* scan(GameMap* gm, int x, int y)
 {
-    GridPosition* pos = getGridPosition(gm, x, y);
+    GridPosition* initPos = getGridPosition(gm, x, y);
 
-    if (pos == NULL)
+    if (initPos)
     {
-        return NULL;
+        fetchResults(gm, initPos);
     }
 
-    GridPositionList* results = fetchResults(gm, *pos);
-    GridPositionElement* ptr = results->head;
     GridPosition* result;
+
     int minHops = -1;
 
-    if (ptr->pos == NULL)
+    for (int i = 0; i < gm->idxResults; i++)
     {
-        return NULL;
-    }
+        Coordinate coor   = gm->results[i];
+        GridPosition* pos = getGridPosition(gm, coor.x, coor.y);
 
-    while (ptr != NULL)
-    {
-        if (ptr->pos->numHops < minHops || minHops == -1)
+        if (pos != NULL && pos->numHops < minHops || minHops == -1)
         {
-            result = ptr->pos;
-            minHops = result->numHops;
+            result  = pos;
+            minHops = pos->numHops;
         }
-        ptr = ptr->next;
     }
 
-    return results->head->pos;
+    return result;
 }
 
 GridPositionElement* newListElement()
@@ -355,4 +373,33 @@ void freeList(GridPositionList* list)
         free(tmp);
     }
     free(list);
+}
+
+
+int addResults(GameMap* gm, GridPosition* pos)
+{
+    if (gm->idxResults + 1 < MAX_RESULTS)
+    {
+        gm->results[gm->idxResults].x = pos->x;
+        gm->results[gm->idxResults].y = pos->y;
+
+        gm->idxResults += 1;
+
+        return EXIT_SUCCESS;
+    }
+    return EXIT_FAILURE;
+}
+
+int addToVisit(GameMap* gm, GridPosition* pos)
+{
+    if (gm->idxToVisit + 1 < MAX_TO_VISIT)
+    {
+        gm->toVisit[gm->idxToVisit].x = pos->x;
+        gm->toVisit[gm->idxToVisit].y = pos->y;
+
+        gm->idxToVisit += 1;
+
+        return EXIT_SUCCESS;
+    }
+    return EXIT_FAILURE;
 }

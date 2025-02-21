@@ -7,7 +7,14 @@
 
 Shape* newShape(int x, int y, char* str)
 {
-    Shape* shp = (Shape*) malloc(sizeof(Shape));
+    Shape* shp = calloc(1, sizeof(Shape));
+
+    if (!shp)
+    {
+        perror("newShape");
+        exit(-1);
+    }
+
     shp->idx   = 0;
     shp->x     = x;
     shp->y     = y;

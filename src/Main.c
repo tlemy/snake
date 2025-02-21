@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #define CONTROL_C_KEY 3
 #define LINE_FEED_KEY 10
@@ -21,18 +22,18 @@
 
 #define SPACE ' '
 
-void addPlayersToGrid(Player** pls, GameMap* gm);
-void addApplesToGrid(Apple** apls, GameMap* gm);
+void addPlayersToGrid(Player* pls[N_PLAYERS], GameMap* gm);
+void addApplesToGrid(Apple* apls[N_APPLES], GameMap* gm);
 
-void updateApples(Apple** apls, GameMap* gm);
+void updateApples(Apple* apls[N_APPLES], GameMap* gm);
 void updateBorders(Player* human, GameMap* gm);
-void updatePlayers(Player** pls, GameMap* gm, Apple** apls, int c);
+void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], int c);
 
-void checkSnakesForCollision(Player** pls, GameMap* gm, int i);
-void checkApplesForCollision(Player* ply, Apple** apls);
+void checkSnakesForCollision(Player* pls[N_PLAYERS], GameMap* gm, int i);
+void checkApplesForCollision(Player* ply, Apple* apls[N_APPLES]);
 
-void initPlayers(Player** pls, GameMap* gm);
-void initApples(Apple** apls, GameMap* gm);
+void initPlayers(Player* pls[N_PLAYERS], GameMap* gm);
+void initApples(Apple* apls[N_APPLES], GameMap* gm);
 
 int isCollidingWithOther(Snake* snk1, Snake* snk2);
 
@@ -78,6 +79,7 @@ int main (void)
         {
             freePlayers(pls, N_PLAYERS);
             freeApples(apls, N_APPLES);
+            freeGameMap(gm);
             endwin(); // free resources and disable curses mode
             return 0;
         }
@@ -119,7 +121,7 @@ void addPlayersToGrid(Player* pls[N_PLAYERS], GameMap* gm)
     }
 }
 
-void addApplesToGrid(Apple* apls[N_PLAYERS], GameMap* gm)
+void addApplesToGrid(Apple* apls[N_APPLES], GameMap* gm)
 {
     for (int i = 0; i < N_APPLES; i++)
     {
@@ -130,7 +132,7 @@ void addApplesToGrid(Apple* apls[N_PLAYERS], GameMap* gm)
     }
 }
 
-void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple** apls, int c)
+void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], int c)
 {
     for (int i = 0; i < N_PLAYERS; i++)
     {
@@ -147,10 +149,9 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple** apls, int c)
 
         addPlayersToGrid(pls, gm);
         addApplesToGrid(apls, gm);
+        resetGridGameMap(gm);
 
         GridPosition* pos = scan(gm, x, y);
-
-        resetGridGameMap(gm);
 
         checkSnakesForCollision(pls, gm, i);
         controlPlayer(ply, c);

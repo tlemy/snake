@@ -6,10 +6,19 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <stdio.h>
 
 Player* newPlayer(int initLen, int x, int y, Direction dir)
 {
-    Player *pl   = (Player*) malloc(sizeof(Player));
+    Player *pl   = calloc(1, sizeof(Player));
+
+    if (!pl)
+    {
+        perror("newPlayer");
+        exit(-1);
+    }
+
     pl->snk      = newSnake(x, y, initLen, dir);
     pl->dir    = dir;
     pl->isDead   = 0;
