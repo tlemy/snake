@@ -1,7 +1,7 @@
 #include "Key.h"
 #include "Direction.h"
 
-Key translateDirectionToKey(int dir)
+char translateDirectionToKey(int dir)
 {
     switch (dir)
     {

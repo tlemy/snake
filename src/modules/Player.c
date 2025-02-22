@@ -24,10 +24,6 @@ Player* newPlayer(int initLen, int x, int y, Direction dir)
     pl->isDead   = 0;
     pl->score    = 0;
     pl->isHuman  = 0;
-    pl->xTarget  = 0;
-    pl->yTarget  = 0;
-    pl->numMoves = 0;
-    pl->moveIdx  = 0;
 
     return pl;
 }

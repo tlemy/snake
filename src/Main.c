@@ -98,7 +98,7 @@ int main (void)
         updatePlayers(pls, gm, apls, c);
         refresh();
 
-        napms(1000 / 30);
+        napms(1000 / 5);
     }
 }
 
@@ -107,6 +107,12 @@ void addPlayersToGrid(Player* pls[N_PLAYERS], GameMap* gm)
     for (int i = 0; i < N_PLAYERS; i++)
     {
         Player* ply = pls[i];
+
+        if (ply->isDead)
+        {
+            continue;
+        }
+
         Shape* sh   = ply->snk->head;
 
         for (int j = 0; j < ply->snk->len; j++)
@@ -162,9 +168,6 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
 
             if (pos != NULL)
             {
-                ply->xTarget = pos->x;
-                ply->yTarget = pos->y;
-
                 attron(COLOR_PAIR(MAGENTA_MAGENTA));
                 mvaddstr(pos->y, pos->x, "  ");
                 attroff(COLOR_PAIR(MAGENTA_MAGENTA));
@@ -234,9 +237,6 @@ void checkApplesForCollision(Player* ply, Apple* apls[N_APPLES])
             apl->isEaten = 1;
 
             ++ply->score;
-
-            ply->xTarget = 0;
-            ply->yTarget = 0;
         }
     }
 }

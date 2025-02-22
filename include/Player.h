@@ -8,14 +8,10 @@ typedef struct Player
 {
     Direction dir;
     int score;
+    Snake* snk;
     int isDead;
     int isHuman;
     int moveIdx;
-    int xTarget;
-    int yTarget;
-    int numMoves;
-    char* moves;
-    Snake* snk;
 } Player;
 
 Player* newPlayer(int initLen, int x, int y, Direction dir);

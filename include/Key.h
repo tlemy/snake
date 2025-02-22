@@ -8,4 +8,4 @@ typedef enum Key
     EAST_KEY = 'd'
 } Key;
 
-Key translateDirectionToKey(int dir);
+char translateDirectionToKey(int dir);

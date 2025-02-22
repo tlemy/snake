@@ -231,6 +231,12 @@ void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results)
 {
     CoordinateList toVisit;
 
+    for (int i = 0; i < MAX_LEN; i++)
+    {
+        toVisit.arr->x = 0;
+        toVisit.arr->y = 0;
+    }
+
     toVisit.idxAdd = 0;
 
     addElementToList(&toVisit, initPos);
@@ -258,9 +264,9 @@ void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results)
         {
             setGridPosition(gm, coor.x, coor.y, IS_VISITED);
 
-            // attron(COLOR_PAIR(BLACK_WHITE));
-            // mvaddstr(pos->y, pos->x, "  ");
-            // attroff(COLOR_PAIR(BLACK_WHITE));
+            attron(COLOR_PAIR(BLACK_WHITE));
+            mvaddstr(pos->y, pos->x, "  ");
+            attroff(COLOR_PAIR(BLACK_WHITE));
 
             fetchNearby(gm, pos, &toVisit);
         }
@@ -278,89 +284,15 @@ GridPosition* scan(GameMap* gm, int x, int y)
 
     CoordinateList results;
 
+    for (int i = 0; i < MAX_LEN; i++)
+    {
+        results.arr->x = 0;
+        results.arr->y = 0;
+    }
+
     results.idxAdd = 0;
 
     fetchResults(gm, pos, &results);
-
-    int result  = -1;
-    int minHops = -1;
-
-    for (int i = 0; i < results.idxAdd; i++)
-    {
-        Coordinate coor   = results.arr[i];
-        GridPosition* pos = getGridPosition(gm, coor.x, coor.y);
-
-        if (pos->numHops < minHops || minHops == -1)
-        {
-            result = i;
-            minHops = pos->numHops;
-        }
-    }
-
-    if (result >= 0)
-    {
-        Coordinate coor = results.arr[result];
-
-        return getGridPosition(gm, coor.x, coor.y);
-    }
-
-    return NULL;
-}
-
-void fetchResultsTarget(GameMap* gm, GridPosition* initPos, CoordinateList* results, int xTarget, int yTarget)
-{
-    CoordinateList toVisit;
-
-    toVisit.idxAdd = 0;
-
-    addElementToList(&toVisit, initPos);
-
-    for (int i = 0; i < toVisit.idxAdd; i++)
-    {
-        Coordinate coor   = toVisit.arr[i];
-        GridPosition* pos = getGridPosition(gm, coor.x, coor.y);
-
-        if (!pos) // why random x or y value
-        {
-            continue;
-        }
-
-        if (pos->type == IS_APPLE && pos->x == xTarget && pos->y == yTarget)
-        {
-            results = addElementToList(results, pos);
-        }
-        else
-        {
-            setGridPosition(gm, coor.x, coor.y, IS_VISITED);
-
-            // attron(COLOR_PAIR(BLACK_WHITE));
-            // mvaddstr(pos->y, pos->x, "  ");
-            // attroff(COLOR_PAIR(BLACK_WHITE));
-
-            fetchNearby(gm, pos, &toVisit);
-        }
-
-        if (toVisit.idxAdd < MAX_LEN && pos->numHops >= MAX_HOPS)
-        {
-            break;
-        }
-    }
-}
-
-GridPosition* target(GameMap* gm, int x, int y, int xTarget, int yTarget)
-{
-    GridPosition* pos = getGridPosition(gm, x, y);
-
-    if (pos == NULL)
-    {
-        return NULL;
-    }
-
-    CoordinateList results;
-
-    results.idxAdd = 0;
-
-    fetchResultsTarget(gm, pos, &results, xTarget, yTarget);
 
     int result  = -1;
     int minHops = -1;
