@@ -53,6 +53,7 @@ GameMap* newGameMap(int minX, int minY, int maxX, int maxY)
             gm->grid[x * (gm->maxY) + y]->path    = 0;
             gm->grid[x * (gm->maxY) + y]->numHops = 0;
             gm->grid[x * (gm->maxY) + y]->type    = IS_FREE;
+            gm->grid[x * (gm->maxY) + y]->dir     = 0;
         }
     }
 
@@ -214,6 +215,7 @@ int fetchNearby(GameMap* gm, GridPosition* parent, CoordinateList* toVisit)
         }
 
         nearby->numHops = parent->numHops + 1;
+        nearby->dir     = i;
 
         if (nearby->type == IS_FREE || nearby->type == IS_APPLE)
         {
@@ -243,6 +245,11 @@ void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results)
             continue;
         }
 
+        if (toVisit.idxAdd < MAX_LEN && pos->numHops >= MAX_HOPS)
+        {
+            break;
+        }
+
         if (pos->type == IS_APPLE)
         {
             results = addElementToList(results, pos);
@@ -256,11 +263,6 @@ void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results)
             // attroff(COLOR_PAIR(BLACK_WHITE));
 
             fetchNearby(gm, pos, &toVisit);
-        }
-
-        if (toVisit.idxAdd < MAX_LEN && pos->numHops >= MAX_HOPS)
-        {
-            break;
         }
     }
 }

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Direction.h"
-
-#define MAX_HOPS 100
-#define MAX_LEN ((MAX_HOPS + 1) * 2) * ((MAX_HOPS + 1) * 2) * 2
+#define MAX_HOPS 300
+#define SQUARE_ROOT_MAX_LEN (MAX_HOPS + 1) * 2
+#define MAX_LEN SQUARE_ROOT_MAX_LEN * SQUARE_ROOT_MAX_LEN
 
 typedef enum PostionType
 {
@@ -18,6 +17,7 @@ typedef struct GridPosition
     PostionType type;
     int numHops;
     char path;
+    int dir;
     int x;
     int y;
 } GridPosition;

@@ -52,7 +52,7 @@ void setup(void)
     init_pair(GREEN_GREEN, COLOR_GREEN, COLOR_GREEN); // snake color
     init_pair(BLACK_WHITE, COLOR_BLACK, COLOR_WHITE); // score color
     init_pair(BLUE_BLUE, COLOR_CYAN, COLOR_CYAN); // enemies
-    init_pair(YELLOW_YELLOW, COLOR_YELLOW, COLOR_YELLOW);
+    init_pair(MAGENTA_MAGENTA, COLOR_MAGENTA, COLOR_MAGENTA);
 }
 
 int main (void)
@@ -165,9 +165,9 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
                 ply->xTarget = pos->x;
                 ply->yTarget = pos->y;
 
-                attron(COLOR_PAIR(BLUE_BLUE));
+                attron(COLOR_PAIR(MAGENTA_MAGENTA));
                 mvaddstr(pos->y, pos->x, "  ");
-                attroff(COLOR_PAIR(BLUE_BLUE));
+                attroff(COLOR_PAIR(MAGENTA_MAGENTA));
                 controlPlayer(ply, pos->path);
             }
             resetGridGameMap(gm);

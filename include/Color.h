@@ -7,5 +7,5 @@ typedef enum Color
     GREEN_GREEN   = 3,
     BLACK_WHITE   = 4,
     BLUE_BLUE     = 5,
-    YELLOW_YELLOW = 6
+    MAGENTA_MAGENTA = 6
 } Color;
