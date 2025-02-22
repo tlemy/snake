@@ -15,7 +15,7 @@
 #define LINE_FEED_KEY 10
 #define CARRIAGE_RETURN_KEY 13
 #define SLEEP_TIME 50 // millisecs
-#define N_APPLES 50
+#define N_APPLES 100
 #define N_BOTS 1
 #define N_PLAYERS 1 + N_BOTS
 
@@ -99,7 +99,7 @@ int main (void)
         updatePlayers(pls, gm, apls, c);
         refresh();
 
-        napms(1000 / 25);
+        napms(1000 / 5);
     }
 }
 
@@ -150,6 +150,10 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
             continue;
         }
 
+        checkSnakesForCollision(pls, gm, i);
+        checkApplesForCollision(ply, apls);
+        moveSnake(ply->snk, getXIncPlayer(ply), getYIncPlayer(ply));
+
         Shape* head = ply->snk->head;
         int x       = head->x;
         int y       = head->y;
@@ -161,17 +165,29 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
             addPlayersToGrid(pls, gm);
             addApplesToGrid(apls, gm);
 
-            if ((pos = scan(gm, x, y, IS_APPLE)) != NULL)
+            pos = scan(gm, x, y, IS_APPLE);
+
+            if (pos != NULL)
             {
                 attron(COLOR_PAIR(MAGENTA_MAGENTA));
                 mvaddstr(pos->y, pos->x, "  ");
                 attroff(COLOR_PAIR(MAGENTA_MAGENTA));
             }
-            else if ((pos = scan(gm, x, y, IS_FREE)) != NULL)
+            else
             {
-                attron(COLOR_PAIR(YELLOW_YELLOW));
-                mvaddstr(pos->y, pos->x, "  ");
-                attroff(COLOR_PAIR(YELLOW_YELLOW));
+                resetGridGameMap(gm);
+
+                addPlayersToGrid(pls, gm);
+                addApplesToGrid(apls, gm);
+
+                pos = scan(gm, x, y, IS_FREE);
+
+                if (pos != NULL)
+                {
+                    attron(COLOR_PAIR(YELLOW_YELLOW));
+                    mvaddstr(pos->y, pos->x, "  ");
+                    attroff(COLOR_PAIR(YELLOW_YELLOW));
+                }
             }
 
             if (pos != NULL)
@@ -185,9 +201,6 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
             controlPlayer(ply, c);
         }
 
-        checkSnakesForCollision(pls, gm, i);
-        checkApplesForCollision(ply, apls);
-        moveSnake(ply->snk, getXIncPlayer(ply), getYIncPlayer(ply));
         drawPlayer(ply);
     }
 }

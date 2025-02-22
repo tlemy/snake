@@ -142,12 +142,12 @@ GridPosition* getGridPosition(GameMap* gm, int x, int y)
         return NULL;
     }
 
-    if (x >= gm->maxX || x < gm->minX)
+    if (x >= gm->maxX - X_INC_SNAKE || x < gm->minX + X_INC_SNAKE)
     {
         return NULL;
     }
 
-    if (y >= gm->maxY || y < gm->minY)
+    if (y >= gm->maxY - Y_INC_SNAKE || y < gm->minY + Y_INC_SNAKE)
     {
         return NULL;
     }
@@ -275,9 +275,9 @@ void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results, P
         }
         else
         {
-            // attron(COLOR_PAIR(BLACK_WHITE));
-            // mvaddstr(pos->y, pos->x, "  ");
-            // attroff(COLOR_PAIR(BLACK_WHITE));
+            attron(COLOR_PAIR(BLACK_WHITE));
+            mvaddstr(pos->y, pos->x, "  ");
+            attroff(COLOR_PAIR(BLACK_WHITE));
 
             fetchNearby(gm, pos, &toVisit);
         }
