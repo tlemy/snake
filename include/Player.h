@@ -11,6 +11,8 @@ typedef struct Player
     int isDead;
     int isHuman;
     int moveIdx;
+    int xTarget;
+    int yTarget;
     int numMoves;
     char* moves;
     Snake* snk;

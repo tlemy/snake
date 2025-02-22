@@ -2,7 +2,8 @@
 
 #include "Direction.h"
 
-#define MAX_HOPS 25
+#define MAX_HOPS 100
+#define MAX_LEN ((MAX_HOPS + 1) * 2) * ((MAX_HOPS + 1) * 2) * 2
 
 typedef enum PostionType
 {
@@ -10,7 +11,6 @@ typedef enum PostionType
     IS_APPLE  = 1,
     IS_SNAKE  = 2,
     IS_VISITED = 3,
-    IS_ORIGINAL = 4
 } PostionType;
 
 typedef struct GridPosition
@@ -31,17 +31,17 @@ typedef struct GameMap
     GridPosition** grid;
 } GameMap;
 
-typedef struct GridPositionElement
+typedef struct Coordinate
 {
-    GridPosition* pos;
-    struct GridPositionElement* next;
-} GridPositionElement;
+    int x;
+    int y;
+} Coordinate;
 
-typedef struct GridPositionList
+typedef struct CoordinateList
 {
-    GridPositionElement* head;
-    GridPositionElement* tail;
-} GridPositionList;
+    int idxAdd;
+    Coordinate arr[MAX_LEN];
+} CoordinateList;
 
 GameMap* newGameMap(int minX, int minY, int maxX, int maxY);
 
@@ -59,10 +59,6 @@ void setGridPosition(GameMap* gm, int x, int y, int type);
 
 GridPosition* scan(GameMap* gm, int x, int y);
 
-GridPositionList* newList();
+GridPosition* target(GameMap* gm, int x, int y, int xTarget, int yTarget);
 
-GridPositionList* addElementToList(GridPositionList* list, GridPosition* pos);
-
-void freeList(GridPositionList* list);
-
-GridPositionList* removeFirstElementFromList(GridPositionList* list);
+CoordinateList* addElementToList(CoordinateList* list, GridPosition* pos);

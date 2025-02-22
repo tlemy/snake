@@ -47,7 +47,7 @@ GameMap* newGameMap(int minX, int minY, int maxX, int maxY)
     {
         for (int y = 0; y < gm->maxY; y++)
         {
-            gm->grid[x * (gm->maxY) + y]         = calloc(1, sizeof(GridPosition));
+            gm->grid[x * (gm->maxY) + y]          = calloc(1, sizeof(GridPosition));
             gm->grid[x * (gm->maxY) + y]->x       = x;
             gm->grid[x * (gm->maxY) + y]->y       = y;
             gm->grid[x * (gm->maxY) + y]->path    = 0;
@@ -65,6 +65,8 @@ void resetGridGameMap(GameMap* gm)
     {
         for (int y = 0; y < gm->maxY; y++)
         {
+            gm->grid[x * (gm->maxY) + y]->x       = x;
+            gm->grid[x * (gm->maxY) + y]->y       = y;
             gm->grid[x * (gm->maxY) + y]->path    = 0;
             gm->grid[x * (gm->maxY) + y]->numHops = 0;
             gm->grid[x * (gm->maxY) + y]->type    = IS_FREE;
@@ -74,6 +76,13 @@ void resetGridGameMap(GameMap* gm)
 
 void freeGameMap(GameMap* gm)
 {
+    for (int x = 0; x < gm->maxX; x++)
+    {
+        for (int y = 0; y < gm->maxY; y++)
+        {
+            free(gm->grid[x * (gm->maxY) + y]);
+        }
+    }
     free(gm->grid);
     free(gm);
 }
@@ -127,10 +136,16 @@ void drawBorders(int maxX, int maxY, int col, int score)
 
 GridPosition* getGridPosition(GameMap* gm, int x, int y)
 {
+    if (!gm)
+    {
+        return NULL;
+    }
+
     if (x >= gm->maxX || x < gm->minX)
     {
         return NULL;
     }
+
     if (y >= gm->maxY || y < gm->minY)
     {
         return NULL;
@@ -149,14 +164,14 @@ void setGridPosition(GameMap* gm, int x, int y, int type)
     }
 }
 
-int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit)
+int fetchNearby(GameMap* gm, GridPosition* parent, CoordinateList* toVisit)
 {
     int added = 0;
 
     for (int i = NORTH; i <= WEST; i++)
     {
-        int x = parent.x;
-        int y = parent.y;
+        int x = parent->x;
+        int y = parent->y;
 
         switch (i)
         {
@@ -189,16 +204,16 @@ int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit)
             continue;
         }
 
-        if (parent.path == 0)
+        if (parent->path == 0)
         {
             nearby->path = translateDirectionToKey(i);
         }
         else
         {
-            nearby->path = parent.path;
+            nearby->path = parent->path;
         }
 
-        nearby->numHops = parent.numHops + 1;
+        nearby->numHops = parent->numHops + 1;
 
         if (nearby->type == IS_FREE || nearby->type == IS_APPLE)
         {
@@ -210,47 +225,44 @@ int fetchNearby(GameMap* gm, GridPosition parent, GridPositionList* toVisit)
     return added;
 }
 
-GridPositionList* fetchResults(GameMap* gm, GridPosition pos)
+void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results)
 {
-    GridPositionList* toVisit = newList();
-    GridPositionList* results = newList();
-    GridPositionElement* ptr  = toVisit->head;
+    CoordinateList toVisit;
 
-    int maxHops = 10;
-    int remain  = 1;
+    toVisit.idxAdd = 0;
 
-    addElementToList(toVisit, &pos);
+    addElementToList(&toVisit, initPos);
 
-    while (remain > 0)
+    for (int i = 0; i < toVisit.idxAdd; i++)
     {
-        if (ptr->pos->type == IS_APPLE)
+        Coordinate coor   = toVisit.arr[i];
+        GridPosition* pos = getGridPosition(gm, coor.x, coor.y);
+
+        if (!pos) // why random x or y value
         {
-            results = addElementToList(results, ptr->pos);
+            continue;
+        }
+
+        if (pos->type == IS_APPLE)
+        {
+            results = addElementToList(results, pos);
         }
         else
         {
-            ptr->pos->type = IS_VISITED;
-            attron(COLOR_PAIR(BLACK_WHITE));
-            mvaddstr(ptr->pos->y, ptr->pos->x, "  ");
-            attroff(COLOR_PAIR(BLACK_WHITE));
+            setGridPosition(gm, coor.x, coor.y, IS_VISITED);
 
-            remain += fetchNearby(gm, *ptr->pos, toVisit);
+            // attron(COLOR_PAIR(BLACK_WHITE));
+            // mvaddstr(pos->y, pos->x, "  ");
+            // attroff(COLOR_PAIR(BLACK_WHITE));
+
+            fetchNearby(gm, pos, &toVisit);
         }
 
-        remain -= 1;
-
-        ptr = ptr->next;
-
-        toVisit = removeFirstElementFromList(toVisit);
-
-        if (ptr != NULL && ptr->pos->numHops >= maxHops)
+        if (toVisit.idxAdd < MAX_LEN && pos->numHops >= MAX_HOPS)
         {
             break;
         }
     }
-
-    freeList(toVisit);
-    return results;
 }
 
 GridPosition* scan(GameMap* gm, int x, int y)
@@ -262,95 +274,126 @@ GridPosition* scan(GameMap* gm, int x, int y)
         return NULL;
     }
 
-    GridPositionList* results = fetchResults(gm, *pos);
-    GridPositionElement* ptr = results->head;
-    GridPosition* result;
+    CoordinateList results;
+
+    results.idxAdd = 0;
+
+    fetchResults(gm, pos, &results);
+
+    int result  = -1;
     int minHops = -1;
 
-    if (ptr->pos == NULL)
+    for (int i = 0; i < results.idxAdd; i++)
+    {
+        Coordinate coor   = results.arr[i];
+        GridPosition* pos = getGridPosition(gm, coor.x, coor.y);
+
+        if (pos->numHops < minHops || minHops == -1)
+        {
+            result = i;
+            minHops = pos->numHops;
+        }
+    }
+
+    if (result >= 0)
+    {
+        Coordinate coor = results.arr[result];
+
+        return getGridPosition(gm, coor.x, coor.y);
+    }
+
+    return NULL;
+}
+
+void fetchResultsTarget(GameMap* gm, GridPosition* initPos, CoordinateList* results, int xTarget, int yTarget)
+{
+    CoordinateList toVisit;
+
+    toVisit.idxAdd = 0;
+
+    addElementToList(&toVisit, initPos);
+
+    for (int i = 0; i < toVisit.idxAdd; i++)
+    {
+        Coordinate coor   = toVisit.arr[i];
+        GridPosition* pos = getGridPosition(gm, coor.x, coor.y);
+
+        if (!pos) // why random x or y value
+        {
+            continue;
+        }
+
+        if (pos->type == IS_APPLE && pos->x == xTarget && pos->y == yTarget)
+        {
+            results = addElementToList(results, pos);
+        }
+        else
+        {
+            setGridPosition(gm, coor.x, coor.y, IS_VISITED);
+
+            // attron(COLOR_PAIR(BLACK_WHITE));
+            // mvaddstr(pos->y, pos->x, "  ");
+            // attroff(COLOR_PAIR(BLACK_WHITE));
+
+            fetchNearby(gm, pos, &toVisit);
+        }
+
+        if (toVisit.idxAdd < MAX_LEN && pos->numHops >= MAX_HOPS)
+        {
+            break;
+        }
+    }
+}
+
+GridPosition* target(GameMap* gm, int x, int y, int xTarget, int yTarget)
+{
+    GridPosition* pos = getGridPosition(gm, x, y);
+
+    if (pos == NULL)
     {
         return NULL;
     }
 
-    while (ptr != NULL)
+    CoordinateList results;
+
+    results.idxAdd = 0;
+
+    fetchResultsTarget(gm, pos, &results, xTarget, yTarget);
+
+    int result  = -1;
+    int minHops = -1;
+
+    for (int i = 0; i < results.idxAdd; i++)
     {
-        if (ptr->pos->numHops < minHops || minHops == -1)
+        Coordinate coor   = results.arr[i];
+        GridPosition* pos = getGridPosition(gm, coor.x, coor.y);
+
+        if (pos->numHops < minHops || minHops == -1)
         {
-            result = ptr->pos;
-            minHops = result->numHops;
-        }
-        ptr = ptr->next;
-    }
-
-    return results->head->pos;
-}
-
-GridPositionElement* newListElement()
-{
-    GridPositionElement* element = (GridPositionElement*) malloc(sizeof(GridPositionElement));
-
-    element->pos  = NULL;
-    element->next = NULL;
-
-    return element;
-}
-
-GridPositionList* newList()
-{
-    GridPositionList* list = (GridPositionList*) malloc(sizeof(GridPositionList));
-
-    list->head = newListElement();
-    list->tail = list->head;
-
-    return list;
-}
-
-GridPositionList* addElementToList(GridPositionList* list, GridPosition* pos)
-{
-    if (list->head->pos == NULL)
-    {
-        list->head->pos = pos;
-    }
-    else
-    {
-        GridPositionElement* toAdd = newListElement();
-
-        toAdd->pos = pos;
-
-        list->tail->next = toAdd;
-
-        list->tail = list->tail->next;
-    }
-
-    return list;
-}
-
-GridPositionList* removeFirstElementFromList(GridPositionList* list)
-{
-    if (list->head->next)
-    {
-        GridPositionElement* toFree = list->head;
-        list->head = list->head->next;
-
-        if (toFree)
-        {
-            free(toFree);
+            result = i;
+            minHops = pos->numHops;
         }
     }
-    return list;
+
+    if (result >= 0)
+    {
+        Coordinate coor = results.arr[result];
+
+        return getGridPosition(gm, coor.x, coor.y);
+    }
+
+    return NULL;
 }
 
-void freeList(GridPositionList* list)
+CoordinateList* addElementToList(CoordinateList* list, GridPosition* pos)
 {
-    GridPositionElement* ptr = list->head;
-
-    while (ptr != NULL)
+    if (list->idxAdd < MAX_LEN) // TODO: why adding more than max len
     {
-        GridPositionElement* tmp = ptr;
+        list->arr[list->idxAdd].x = pos->x;
+        list->arr[list->idxAdd].y = pos->y;
 
-        ptr = ptr->next;
-
-        free(tmp);
+        list->idxAdd += 1;
     }
-    free(list);
+
+    return list;
 }

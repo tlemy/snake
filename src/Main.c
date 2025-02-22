@@ -15,8 +15,8 @@
 #define LINE_FEED_KEY 10
 #define CARRIAGE_RETURN_KEY 13
 #define SLEEP_TIME 50 // millisecs
-#define N_APPLES 50
-#define N_BOTS 0
+#define N_APPLES 100
+#define N_BOTS 1
 #define N_PLAYERS 1 + N_BOTS
 
 #define SPACE ' '
@@ -98,7 +98,7 @@ int main (void)
         updatePlayers(pls, gm, apls, c);
         refresh();
 
-        napms(1000 / 20);
+        napms(1000 / 30);
     }
 }
 
@@ -147,25 +147,37 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
             continue;
         }
 
-        addPlayersToGrid(pls, gm);
-        addApplesToGrid(apls, gm);
-
-        GridPosition* pos = scan(gm, x, y);
-
-        resetGridGameMap(gm);
-
         checkSnakesForCollision(pls, gm, i);
-        controlPlayer(ply, c);
         checkApplesForCollision(ply, apls);
         moveSnake(ply->snk, getXIncPlayer(ply), getYIncPlayer(ply));
-        drawPlayer(ply);
 
-        if (pos != NULL)
+         if (!ply->isHuman)
         {
-            attron(COLOR_PAIR(BLUE_BLUE));
-            mvaddstr(pos->y, pos->x, "  ");
-            attroff(COLOR_PAIR(BLUE_BLUE));
+            GridPosition* pos = NULL;
+
+            addPlayersToGrid(pls, gm);
+            addApplesToGrid(apls, gm);
+
+            pos = scan(gm, x, y);
+
+            if (pos != NULL)
+            {
+                ply->xTarget = pos->x;
+                ply->yTarget = pos->y;
+
+                attron(COLOR_PAIR(BLUE_BLUE));
+                mvaddstr(pos->y, pos->x, "  ");
+                attroff(COLOR_PAIR(BLUE_BLUE));
+                controlPlayer(ply, pos->path);
+            }
+            resetGridGameMap(gm);
         }
+        else
+        {
+            controlPlayer(ply, c);
+        }
+
+        drawPlayer(ply);
     }
 }
 
@@ -218,8 +230,13 @@ void checkApplesForCollision(Player* ply, Apple* apls[N_APPLES])
         if (!ply->isDead && appleX == playerX && appleY == playerY)
         {
             growSnake(ply->snk);
+
             apl->isEaten = 1;
+
             ++ply->score;
+
+            ply->xTarget = 0;
+            ply->yTarget = 0;
         }
     }
 }
@@ -255,14 +272,18 @@ void updateBorders(Player* human, GameMap* gm)
 void initPlayers(Player* pls[N_PLAYERS], GameMap* gm)
 {
     pls[0] = newPlayer(gm->maxX / 30, gm->minX, gm->maxY / 2, EAST);
-    // pls[1] = newPlayer(gm->maxX / 30, gm->maxX - (X_INC_SNAKE * 2), gm->maxY / 2, WEST);
+    pls[0]->isHuman = 1;
+
+    pls[1] = newPlayer(gm->maxX / 30, gm->maxX - (X_INC_SNAKE * 2), gm->maxY / 2, WEST);
+    pls[1]->isHuman = 0;
 
     // snakes have to be properly aligned with the game grid for the collision to work
-    int adjuster = gm->minX % 2 != 0 ? 1 : 0;
+    // int adjuster = gm->minX % 2 != 0 ? 1 : 0;
     // pls[2] = newPlayer(gm->maxX / 30, gm->maxX / 2 - adjuster, gm->minY, SOUTH);
-    // pls[3] = newPlayer(gm->maxX / 30, gm->maxX / 2 - adjuster, gm->maxY - (Y_INC_SNAKE * 2), NORTH);
+    // pls[2]->isHuman = 0;
 
-    pls[0]->isHuman = 1;
+    // pls[3] = newPlayer(gm->maxX / 30, gm->maxX / 2 - adjuster, gm->maxY - (Y_INC_SNAKE * 2), NORTH);
+    // pls[3]->isHuman = 0;
 }
 
 void initApples(Apple* apls[N_APPLES], GameMap* gm)
