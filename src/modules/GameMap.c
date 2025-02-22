@@ -165,6 +165,19 @@ void setGridPosition(GameMap* gm, int x, int y, int type)
     }
 }
 
+CoordinateList* addElementToList(CoordinateList* list, GridPosition* pos)
+{
+    if (list->idxAdd < MAX_LEN) // TODO: why adding more than max len
+    {
+        list->arr[list->idxAdd].x = pos->x;
+        list->arr[list->idxAdd].y = pos->y;
+
+        list->idxAdd += 1;
+    }
+
+    return list;
+}
+
 int fetchNearby(GameMap* gm, GridPosition* parent, CoordinateList* toVisit)
 {
     int added = 0;
@@ -317,17 +330,4 @@ GridPosition* scan(GameMap* gm, int x, int y)
     }
 
     return NULL;
-}
-
-CoordinateList* addElementToList(CoordinateList* list, GridPosition* pos)
-{
-    if (list->idxAdd < MAX_LEN) // TODO: why adding more than max len
-    {
-        list->arr[list->idxAdd].x = pos->x;
-        list->arr[list->idxAdd].y = pos->y;
-
-        list->idxAdd += 1;
-    }
-
-    return list;
 }
