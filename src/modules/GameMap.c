@@ -98,13 +98,13 @@ int isBorderCollision(GameMap* gm, int x, int y)
     return leftBorderCollision || rightBorderCollision || topBorderCollision || bottomBorderCollision;
 }
 
-void drawBorders(int maxX, int maxY, int col, int score)
+void drawBorders(int maxX, int maxY, int col, int score1, int score2)
 {
     char str[32];
-    sprintf(str, " [ SCORE: %d ] ", score);
-    attron(COLOR_PAIR(col));
+    sprintf(str, " [ HUMAN: %d ] [ BOT-1: %d] ", score1, score2);
+    attron(COLOR_PAIR(BLACK_WHITE));
     mvaddstr(0, 1, str);
-    attroff(COLOR_PAIR(col));
+    attroff(COLOR_PAIR(BLACK_WHITE));
 
     attron(COLOR_PAIR(col));
 
@@ -218,6 +218,9 @@ int fetchNearby(GameMap* gm, GridPosition* parent, CoordinateList* toVisit)
             continue;
         }
 
+        nearby->numHops = parent->numHops + 1;
+        nearby->dir     = i;
+
         if (parent->path == 0)
         {
             nearby->path = translateDirectionToKey(i);
@@ -226,9 +229,6 @@ int fetchNearby(GameMap* gm, GridPosition* parent, CoordinateList* toVisit)
         {
             nearby->path = parent->path;
         }
-
-        nearby->numHops = parent->numHops + 1;
-        nearby->dir     = i;
 
         if (nearby->type == IS_FREE || nearby->type == IS_APPLE)
         {
@@ -240,7 +240,7 @@ int fetchNearby(GameMap* gm, GridPosition* parent, CoordinateList* toVisit)
     return added;
 }
 
-void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results)
+void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results, PostionType target)
 {
     CoordinateList toVisit;
 
@@ -269,7 +269,7 @@ void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results)
             break;
         }
 
-        if (pos->type == IS_APPLE)
+        if (pos->type == target)
         {
             results = addElementToList(results, pos);
         }
@@ -286,11 +286,11 @@ void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results)
     }
 }
 
-GridPosition* scan(GameMap* gm, int x, int y)
+GridPosition* scan(GameMap* gm, int x, int y, PostionType target)
 {
-    GridPosition* pos = getGridPosition(gm, x, y);
+    GridPosition* initPos = getGridPosition(gm, x, y);
 
-    if (pos == NULL)
+    if (initPos == NULL)
     {
         return NULL;
     }
@@ -305,7 +305,7 @@ GridPosition* scan(GameMap* gm, int x, int y)
 
     results.idxAdd = 0;
 
-    fetchResults(gm, pos, &results);
+    fetchResults(gm, initPos, &results, target);
 
     int result  = -1;
     int minHops = -1;
@@ -324,9 +324,15 @@ GridPosition* scan(GameMap* gm, int x, int y)
 
     if (result >= 0)
     {
-        Coordinate coor = results.arr[result];
+        Coordinate coor         = results.arr[result];
+        GridPosition* posResult = getGridPosition(gm, coor.x, coor.y);
 
-        return getGridPosition(gm, coor.x, coor.y);
+        if (posResult->path == 0)
+        {
+            return NULL;
+        }
+
+        return posResult;
     }
 
     return NULL;

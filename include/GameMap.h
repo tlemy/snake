@@ -1,8 +1,8 @@
 #pragma once
 
-#define MAX_HOPS 40
+#define MAX_HOPS 50
 #define SQUARE_ROOT_MAX_LEN (MAX_HOPS + 1) * 2
-#define MAX_LEN SQUARE_ROOT_MAX_LEN * SQUARE_ROOT_MAX_LEN
+#define MAX_LEN (SQUARE_ROOT_MAX_LEN * SQUARE_ROOT_MAX_LEN)
 
 typedef enum PostionType
 {
@@ -51,10 +51,10 @@ void freeGameMap(GameMap* gm);
 
 int isBorderCollision(GameMap* gm, int x, int y);
 
-void drawBorders(int maxX, int maxY, int pair, int score);
+void drawBorders(int maxX, int maxY, int col, int score1, int score2);
 
 GridPosition* getGridPosition(GameMap* gm, int x, int y);
 
 void setGridPosition(GameMap* gm, int x, int y, int type);
 
-GridPosition* scan(GameMap* gm, int x, int y);
+GridPosition* scan(GameMap* gm, int x, int y, PostionType target);

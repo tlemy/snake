@@ -15,7 +15,7 @@
 #define LINE_FEED_KEY 10
 #define CARRIAGE_RETURN_KEY 13
 #define SLEEP_TIME 50 // millisecs
-#define N_APPLES 100
+#define N_APPLES 50
 #define N_BOTS 1
 #define N_PLAYERS 1 + N_BOTS
 
@@ -25,7 +25,7 @@ void addPlayersToGrid(Player* pls[N_PLAYERS], GameMap* gm);
 void addApplesToGrid(Apple* apls[N_APPLES], GameMap* gm);
 
 void updateApples(Apple* apls[N_APPLES], GameMap* gm);
-void updateBorders(Player* human, GameMap* gm);
+void updateBorders(Player* pls[N_PLAYERS], GameMap* gm);
 void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], int c);
 
 void checkSnakesForCollision(Player* pls[N_PLAYERS], GameMap* gm, int i);
@@ -53,6 +53,7 @@ void setup(void)
     init_pair(BLACK_WHITE, COLOR_BLACK, COLOR_WHITE); // score color
     init_pair(BLUE_BLUE, COLOR_CYAN, COLOR_CYAN); // enemies
     init_pair(MAGENTA_MAGENTA, COLOR_MAGENTA, COLOR_MAGENTA);
+    init_pair(YELLOW_YELLOW, COLOR_YELLOW, COLOR_YELLOW);
 }
 
 int main (void)
@@ -93,7 +94,7 @@ int main (void)
         }
 
         erase();
-        updateBorders(pls[0], gm);
+        updateBorders(pls, gm);
         updateApples(apls, gm);
         updatePlayers(pls, gm, apls, c);
         refresh();
@@ -160,13 +161,21 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
             addPlayersToGrid(pls, gm);
             addApplesToGrid(apls, gm);
 
-            pos = scan(gm, x, y);
-
-            if (pos != NULL)
+            if ((pos = scan(gm, x, y, IS_APPLE)) != NULL)
             {
                 attron(COLOR_PAIR(MAGENTA_MAGENTA));
                 mvaddstr(pos->y, pos->x, "  ");
                 attroff(COLOR_PAIR(MAGENTA_MAGENTA));
+            }
+            else if ((pos = scan(gm, x, y, IS_FREE)) != NULL)
+            {
+                attron(COLOR_PAIR(YELLOW_YELLOW));
+                mvaddstr(pos->y, pos->x, "  ");
+                attroff(COLOR_PAIR(YELLOW_YELLOW));
+            }
+
+            if (pos != NULL)
+            {
                 controlPlayer(ply, pos->path);
             }
             resetGridGameMap(gm);
@@ -256,15 +265,15 @@ void updateApples(Apple* apls[N_APPLES], GameMap* gm)
     }
 }
 
-void updateBorders(Player* human, GameMap* gm)
+void updateBorders(Player* pls[N_PLAYERS], GameMap* gm)
 {
-    if (!human->isDead)
+    if (!pls[0]->isDead)
     {
-        drawBorders(gm->maxX, gm->maxY, BLACK_WHITE, human->score);
+        drawBorders(gm->maxX, gm->maxY, BLACK_WHITE, pls[0]->score, pls[1]->score);
     }
     else
     {
-        drawBorders(gm->maxX, gm->maxY, RED_RED, human->score);
+        drawBorders(gm->maxX, gm->maxY, RED_RED, pls[0]->score, pls[1]->score);
     }
 }
 
