@@ -15,8 +15,8 @@
 #define LINE_FEED_KEY 10
 #define CARRIAGE_RETURN_KEY 13
 #define SLEEP_TIME 50 // millisecs
-#define N_APPLES 100
-#define N_BOTS 1
+#define N_APPLES 50
+#define N_BOTS 3
 #define N_PLAYERS 1 + N_BOTS
 
 #define SPACE ' '
@@ -99,7 +99,7 @@ int main (void)
         updatePlayers(pls, gm, apls, c);
         refresh();
 
-        napms(1000 / 5);
+        napms(1000 / 30);
     }
 }
 
@@ -176,7 +176,6 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
             else
             {
                 resetGridGameMap(gm);
-
                 addPlayersToGrid(pls, gm);
                 addApplesToGrid(apls, gm);
 
@@ -184,9 +183,9 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
 
                 if (pos != NULL)
                 {
-                    attron(COLOR_PAIR(YELLOW_YELLOW));
-                    mvaddstr(pos->y, pos->x, "  ");
-                    attroff(COLOR_PAIR(YELLOW_YELLOW));
+                    // attron(COLOR_PAIR(YELLOW_YELLOW));
+                    // mvaddstr(pos->y, pos->x, "  ");
+                    // attroff(COLOR_PAIR(YELLOW_YELLOW));
                 }
             }
 
@@ -282,11 +281,11 @@ void updateBorders(Player* pls[N_PLAYERS], GameMap* gm)
 {
     if (!pls[0]->isDead)
     {
-        drawBorders(gm->maxX, gm->maxY, BLACK_WHITE, pls[0]->score, pls[1]->score);
+        drawBorders(gm->maxX, gm->maxY, BLACK_WHITE, pls[0]->score, pls[1]->score, pls[2]->score, pls[3]->score);
     }
     else
     {
-        drawBorders(gm->maxX, gm->maxY, RED_RED, pls[0]->score, pls[1]->score);
+        drawBorders(gm->maxX, gm->maxY, RED_RED, pls[0]->score, pls[1]->score, pls[2]->score, pls[3]->score);
     }
 }
 
@@ -299,12 +298,12 @@ void initPlayers(Player* pls[N_PLAYERS], GameMap* gm)
     pls[1]->isHuman = 0;
 
     // snakes have to be properly aligned with the game grid for the collision to work
-    // int adjuster = gm->minX % 2 != 0 ? 1 : 0;
-    // pls[2] = newPlayer(gm->maxX / 30, gm->maxX / 2 - adjuster, gm->minY, SOUTH);
-    // pls[2]->isHuman = 0;
+    int adjuster = gm->minX % 2 != 0 ? X_INC_SNAKE : 0;
+    pls[2] = newPlayer(gm->maxX / 30, gm->maxX / 2 - adjuster, gm->minY, SOUTH);
+    pls[2]->isHuman = 0;
 
-    // pls[3] = newPlayer(gm->maxX / 30, gm->maxX / 2 - adjuster, gm->maxY - (Y_INC_SNAKE * 2), NORTH);
-    // pls[3]->isHuman = 0;
+    pls[3] = newPlayer(gm->maxX / 30, gm->maxX / 2 - adjuster, gm->maxY - (Y_INC_SNAKE * 2), NORTH);
+    pls[3]->isHuman = 0;
 }
 
 void initApples(Apple* apls[N_APPLES], GameMap* gm)

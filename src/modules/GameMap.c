@@ -98,10 +98,10 @@ int isBorderCollision(GameMap* gm, int x, int y)
     return leftBorderCollision || rightBorderCollision || topBorderCollision || bottomBorderCollision;
 }
 
-void drawBorders(int maxX, int maxY, int col, int score1, int score2)
+void drawBorders(int maxX, int maxY, int col, int score1, int score2, int score3, int score4)
 {
-    char str[32];
-    sprintf(str, " [ HUMAN: %d ] [ BOT-1: %d] ", score1, score2);
+    char str[50];
+    sprintf(str, " [ HUMAN: %d ] [ BOT-1: %d] [ BOT-2: %d] [ BOT-3: %d]", score1, score2, score3, score4);
     attron(COLOR_PAIR(BLACK_WHITE));
     mvaddstr(0, 1, str);
     attroff(COLOR_PAIR(BLACK_WHITE));
@@ -147,7 +147,7 @@ GridPosition* getGridPosition(GameMap* gm, int x, int y)
         return NULL;
     }
 
-    if (y >= gm->maxY - Y_INC_SNAKE || y < gm->minY + Y_INC_SNAKE)
+    if (y >= gm->maxY - Y_INC_SNAKE || y < gm->minY)
     {
         return NULL;
     }
@@ -271,13 +271,22 @@ void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results, P
 
         if (pos->type == target)
         {
-            results = addElementToList(results, pos);
+            if (target == IS_FREE && pos->numHops >= MIN_HOPS)
+            {
+                results = addElementToList(results, pos);
+            }
+            else if (target == IS_APPLE)
+            {
+                results = addElementToList(results, pos);
+            }
+
+            fetchNearby(gm, pos, &toVisit);
         }
         else
         {
-            attron(COLOR_PAIR(BLACK_WHITE));
-            mvaddstr(pos->y, pos->x, "  ");
-            attroff(COLOR_PAIR(BLACK_WHITE));
+            // attron(COLOR_PAIR(BLACK_WHITE));
+            // mvaddstr(pos->y, pos->x, "  ");
+            // attroff(COLOR_PAIR(BLACK_WHITE));
 
             fetchNearby(gm, pos, &toVisit);
         }

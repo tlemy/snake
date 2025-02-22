@@ -1,6 +1,7 @@
 #pragma once
 
-#define MAX_HOPS 50
+#define MAX_HOPS 100
+#define MIN_HOPS 5
 #define SQUARE_ROOT_MAX_LEN (MAX_HOPS + 1) * 2
 #define MAX_LEN (SQUARE_ROOT_MAX_LEN * SQUARE_ROOT_MAX_LEN)
 
@@ -51,7 +52,7 @@ void freeGameMap(GameMap* gm);
 
 int isBorderCollision(GameMap* gm, int x, int y);
 
-void drawBorders(int maxX, int maxY, int col, int score1, int score2);
+void drawBorders(int maxX, int maxY, int col, int score1, int score2, int score3, int score4);
 
 GridPosition* getGridPosition(GameMap* gm, int x, int y);
 
