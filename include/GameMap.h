@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAX_HOPS 10
+#define MAX_HOPS 40
 #define SQUARE_ROOT_MAX_LEN (MAX_HOPS + 1) * 2
 #define MAX_LEN SQUARE_ROOT_MAX_LEN * SQUARE_ROOT_MAX_LEN
 

@@ -275,14 +275,14 @@ void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results)
         }
         else
         {
-            setGridPosition(gm, coor.x, coor.y, IS_VISITED);
-
-            attron(COLOR_PAIR(BLACK_WHITE));
-            mvaddstr(pos->y, pos->x, "  ");
-            attroff(COLOR_PAIR(BLACK_WHITE));
+            // attron(COLOR_PAIR(BLACK_WHITE));
+            // mvaddstr(pos->y, pos->x, "  ");
+            // attroff(COLOR_PAIR(BLACK_WHITE));
 
             fetchNearby(gm, pos, &toVisit);
         }
+
+        setGridPosition(gm, coor.x, coor.y, IS_VISITED);
     }
 }
 

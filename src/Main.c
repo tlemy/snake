@@ -98,7 +98,7 @@ int main (void)
         updatePlayers(pls, gm, apls, c);
         refresh();
 
-        napms(1000 / 5);
+        napms(1000 / 25);
     }
 }
 
@@ -143,21 +143,17 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
     for (int i = 0; i < N_PLAYERS; i++)
     {
         Player* ply = pls[i];
-        Shape* head = ply->snk->head;
-        int x       = head->x;
-        int y       = head->y;
-        int len     = ply->snk->len;
 
         if (ply->isDead)
         {
             continue;
         }
 
-        checkSnakesForCollision(pls, gm, i);
-        checkApplesForCollision(ply, apls);
-        moveSnake(ply->snk, getXIncPlayer(ply), getYIncPlayer(ply));
+        Shape* head = ply->snk->head;
+        int x       = head->x;
+        int y       = head->y;
 
-         if (!ply->isHuman)
+        if (!ply->isHuman)
         {
             GridPosition* pos = NULL;
 
@@ -180,6 +176,9 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
             controlPlayer(ply, c);
         }
 
+        checkSnakesForCollision(pls, gm, i);
+        checkApplesForCollision(ply, apls);
+        moveSnake(ply->snk, getXIncPlayer(ply), getYIncPlayer(ply));
         drawPlayer(ply);
     }
 }
@@ -249,7 +248,7 @@ void updateApples(Apple* apls[N_APPLES], GameMap* gm)
 
         if (apl->isEaten)
         {
-            while(spawnApple(apl));
+            while(spawnApple(apl) && IS_FREE != getGridPosition(gm, apl->shp->x, apl->shp->y));
             apl->isEaten = 0;
         }
         drawShape(apl->shp, 1, RED_RED);
