@@ -1,7 +1,11 @@
+#include "Snake.h"
+#include "Direction.h"
+#include "Incrementation.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../include/Snake.h"
+#define SQUARE "  "
 
 Snake *newSnake(int initX, int initY, int initLen, int dirct)
 {
@@ -34,7 +38,14 @@ Snake *newSnake(int initX, int initY, int initLen, int dirct)
         tail = growShape(tail, newShape(tail->x - xModifier, tail->y - yModifier, SQUARE));
     }
 
-    Snake *snk = (Snake*) malloc(sizeof(Snake));
+    Snake *snk = calloc(1, sizeof(Snake));
+
+    if (!snk)
+    {
+        perror("newSnake");
+        exit(-1);
+    }
+
     snk->head  = head;
     snk->tail  = tail;
     snk->len   = i;
@@ -77,8 +88,8 @@ int freeSnake(Snake *snk)
     if (freeShape(snk->head) == snk->len)
     {
         free(snk);
-        return 1;
+        return 0;
     }
 
-    return 0;
+    return -1;
 }

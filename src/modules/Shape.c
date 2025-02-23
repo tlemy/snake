@@ -1,12 +1,21 @@
+#include "Shape.h"
+
+#include <ncurses.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-#include "../include/Shape.h"
+#include <errno.h>
 
 Shape* newShape(int x, int y, char* str)
 {
-    Shape* shp = (Shape*) malloc(sizeof(Shape));
+    Shape* shp = calloc(1, sizeof(Shape));
+
+    if (!shp)
+    {
+        perror("newShape");
+        exit(-1);
+    }
+
     shp->idx   = 0;
     shp->x     = x;
     shp->y     = y;
@@ -62,4 +71,19 @@ int isCollidingWithPoint(Shape sh, int x, int y, int len)
         }
     }
     return 0;
+}
+
+void drawShape(Shape *shp, int len, int pair)
+{
+    attron(COLOR_PAIR(pair));
+
+    Shape* ptr = shp;
+
+    for (int i = 0; i < len; i++)
+    {
+        mvaddstr(ptr->y, ptr->x, ptr->str);
+        ptr = ptr->nxt;
+    }
+
+    attroff(COLOR_PAIR(pair));
 }

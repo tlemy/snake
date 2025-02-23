@@ -13,12 +13,9 @@ Have fun!<br />
 * Have 'Ncurses' installed
 * Have 'clang' installed
 * Have 'make' installed
-* (This application was developed and tested on a Linux distribution) 
+* (This application was developed and tested on a Linux distribution)
 
 ## Compile and Run
 `$ sudo apt-get install libcunit1 libcunit1-doc libcunit1-dev`<br />
 `$ mkdir build`<br />
-`$ make shape-test`<br />
-`$ make apple-test`<br />
-`$ make snake-test`<br />
 `$ make main`<br />

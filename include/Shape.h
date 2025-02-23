@@ -1,10 +1,5 @@
 #pragma once
 
-#include "../include/Params.h"
-
-#define SPACE ' '
-#define SQUARE "  "
-
 struct Shape;
 typedef struct Shape
 {
@@ -23,3 +18,5 @@ Shape* growShape(Shape *shp, Shape *newShape);
 int freeShape(Shape* shp);
 
 int isCollidingWithPoint(Shape sh, int x, int y, int len);
+
+void drawShape(Shape *shp, int len, int pair);

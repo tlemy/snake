@@ -1,29 +1,26 @@
 #pragma once
 
-#include "./Snake.h"
-
-#define W_KEY 'w'
-#define A_KEY 'a'
-#define S_KEY 's'
-#define D_KEY 'd'
+#include "Snake.h"
+#include "Direction.h"
+#include "Key.h"
 
 typedef struct Player
 {
-    int dirct;
+    Direction dir;
     int score;
+    Snake* snk;
     int isDead;
     int isHuman;
-    int moveIdx;
-    int numMoves;
-    char* moves;
-    Snake* snk;
 } Player;
+
+Player* newPlayer(int initLen, int x, int y, Direction dir);
 
 int getYIncPlayer(Player* pl);
 
 int getXIncPlayer(Player* pl);
 
-void initPlayer(Player* pl, int initLen, int x, int y, int dirct);
+void controlPlayer(Player* pl, Key k);
 
-void controlPlayer(Player* pl, int c);
+int freePlayer(Player* ply);
 
+void drawPlayer(Player* ply);
