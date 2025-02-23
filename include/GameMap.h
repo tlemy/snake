@@ -1,7 +1,7 @@
 #pragma once
 
-#define MAX_HOPS 100
-#define MIN_HOPS 5
+#define MIN_HOPS 10
+#define MAX_HOPS 40
 #define SQUARE_ROOT_MAX_LEN (MAX_HOPS + 1) * 2
 #define MAX_LEN (SQUARE_ROOT_MAX_LEN * SQUARE_ROOT_MAX_LEN)
 
@@ -58,4 +58,4 @@ GridPosition* getGridPosition(GameMap* gm, int x, int y);
 
 void setGridPosition(GameMap* gm, int x, int y, int type);
 
-GridPosition* scan(GameMap* gm, int x, int y, PostionType target);
+GridPosition* scan(GameMap* gm, int x, int y, PostionType target, int minHops);

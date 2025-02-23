@@ -11,7 +11,6 @@ typedef struct Player
     Snake* snk;
     int isDead;
     int isHuman;
-    int moveIdx;
 } Player;
 
 Player* newPlayer(int initLen, int x, int y, Direction dir);

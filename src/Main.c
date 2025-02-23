@@ -99,7 +99,7 @@ int main (void)
         updatePlayers(pls, gm, apls, c);
         refresh();
 
-        napms(1000 / 30);
+        napms(1000 / 25);
     }
 }
 
@@ -150,10 +150,6 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
             continue;
         }
 
-        checkSnakesForCollision(pls, gm, i);
-        checkApplesForCollision(ply, apls);
-        moveSnake(ply->snk, getXIncPlayer(ply), getYIncPlayer(ply));
-
         Shape* head = ply->snk->head;
         int x       = head->x;
         int y       = head->y;
@@ -165,7 +161,7 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
             addPlayersToGrid(pls, gm);
             addApplesToGrid(apls, gm);
 
-            pos = scan(gm, x, y, IS_APPLE);
+            pos = scan(gm, x, y, IS_APPLE, 0);
 
             if (pos != NULL)
             {
@@ -179,13 +175,19 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
                 addPlayersToGrid(pls, gm);
                 addApplesToGrid(apls, gm);
 
-                pos = scan(gm, x, y, IS_FREE);
+                int minHops = MIN_HOPS;
 
-                if (pos != NULL)
+                for (int j = minHops; j > 0; j--)
                 {
-                    // attron(COLOR_PAIR(YELLOW_YELLOW));
-                    // mvaddstr(pos->y, pos->x, "  ");
-                    // attroff(COLOR_PAIR(YELLOW_YELLOW));
+                    pos = scan(gm, x, y, IS_FREE, j);
+
+                    if (pos != NULL)
+                    {
+                        // attron(COLOR_PAIR(YELLOW_YELLOW));
+                        // mvaddstr(pos->y, pos->x, "  ");
+                        // attroff(COLOR_PAIR(YELLOW_YELLOW));
+                        break;
+                    }
                 }
             }
 
@@ -200,6 +202,9 @@ void updatePlayers(Player* pls[N_PLAYERS], GameMap* gm, Apple* apls[N_APPLES], i
             controlPlayer(ply, c);
         }
 
+        checkSnakesForCollision(pls, gm, i);
+        checkApplesForCollision(ply, apls);
+        moveSnake(ply->snk, getXIncPlayer(ply), getYIncPlayer(ply));
         drawPlayer(ply);
     }
 }
@@ -298,11 +303,18 @@ void initPlayers(Player* pls[N_PLAYERS], GameMap* gm)
     pls[1]->isHuman = 0;
 
     // snakes have to be properly aligned with the game grid for the collision to work
-    int adjuster = gm->minX % 2 != 0 ? X_INC_SNAKE : 0;
-    pls[2] = newPlayer(gm->maxX / 30, gm->maxX / 2 - adjuster, gm->minY, SOUTH);
+
+    int middle = gm->maxX / 2;
+
+    if ((gm->minX % 2 != 0 && middle % 2 == 0) || (gm->minX % 2 == 0 && middle % 2 != 0))
+    {
+        middle -= 1;
+    }
+
+    pls[2] = newPlayer(gm->maxX / 40, middle, gm->minY, SOUTH);
     pls[2]->isHuman = 0;
 
-    pls[3] = newPlayer(gm->maxX / 30, gm->maxX / 2 - adjuster, gm->maxY - (Y_INC_SNAKE * 2), NORTH);
+    pls[3] = newPlayer(gm->maxX / 40, middle, gm->maxY - (Y_INC_SNAKE * 2), NORTH);
     pls[3]->isHuman = 0;
 }
 

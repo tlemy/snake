@@ -240,7 +240,7 @@ int fetchNearby(GameMap* gm, GridPosition* parent, CoordinateList* toVisit)
     return added;
 }
 
-void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results, PostionType target)
+void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results, PostionType target, int minHops)
 {
     CoordinateList toVisit;
 
@@ -271,11 +271,7 @@ void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results, P
 
         if (pos->type == target)
         {
-            if (target == IS_FREE && pos->numHops >= MIN_HOPS)
-            {
-                results = addElementToList(results, pos);
-            }
-            else if (target == IS_APPLE)
+            if (pos->numHops >= minHops)
             {
                 results = addElementToList(results, pos);
             }
@@ -295,7 +291,7 @@ void fetchResults(GameMap* gm, GridPosition* initPos, CoordinateList* results, P
     }
 }
 
-GridPosition* scan(GameMap* gm, int x, int y, PostionType target)
+GridPosition* scan(GameMap* gm, int x, int y, PostionType target, int minHops)
 {
     GridPosition* initPos = getGridPosition(gm, x, y);
 
@@ -314,26 +310,33 @@ GridPosition* scan(GameMap* gm, int x, int y, PostionType target)
 
     results.idxAdd = 0;
 
-    fetchResults(gm, initPos, &results, target);
+    fetchResults(gm, initPos, &results, target, minHops);
 
     int result  = -1;
-    int minHops = -1;
+    int lowestHops = -1;
+
+    int solutionIdx = 0;
+    GridPosition* solutions[results.idxAdd];
 
     for (int i = 0; i < results.idxAdd; i++)
     {
         Coordinate coor   = results.arr[i];
         GridPosition* pos = getGridPosition(gm, coor.x, coor.y);
 
-        if (pos->numHops < minHops || minHops == -1)
+        if (pos->numHops <= lowestHops || lowestHops == -1)
         {
             result = i;
-            minHops = pos->numHops;
+            lowestHops = pos->numHops;
+
+            solutions[solutionIdx++] = pos;
         }
     }
 
-    if (result >= 0)
+    if (solutionIdx > 0)
     {
-        Coordinate coor         = results.arr[result];
+        int i = rand() % (solutionIdx);
+
+        Coordinate coor         = results.arr[i];
         GridPosition* posResult = getGridPosition(gm, coor.x, coor.y);
 
         if (posResult->path == 0)
